@@ -1,0 +1,2485 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>在D天送达包裹的能力</title>
+    <url>/2021/04/26/%E5%9C%A8D%E5%A4%A9%E9%80%81%E8%BE%BE%E5%8C%85%E8%A3%B9%E7%9A%84%E8%83%BD%E5%8A%9B/</url>
+    <content><![CDATA[<h3 id="1011-在-D-天内送达包裹的能力"><a href="#1011-在-D-天内送达包裹的能力" class="headerlink" title="1011. 在 D 天内送达包裹的能力"></a><a href="https://leetcode-cn.com/problems/capacity-to-ship-packages-within-d-days/">1011. 在 D 天内送达包裹的能力</a></h3><p>Difficulty: <strong>中等</strong></p>
+<p>传送带上的包裹必须在 D 天内从一个港口运送到另一个港口。</p>
+<p>传送带上的第 <code>i</code> 个包裹的重量为 <code>weights[i]</code>。每一天，我们都会按给出重量的顺序往传送带上装载包裹。我们装载的重量不会超过船的最大运载重量。</p>
+<p>返回能在 <code>D</code> 天内将传送带上的所有包裹送达的船的最低运载能力。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：weights = [1,2,3,4,5,6,7,8,9,10], D = 5</span><br><span class="line">输出：15</span><br><span class="line">解释：</span><br><span class="line">船舶最低载重 15 就能够在 5 天内送达所有包裹，如下所示：</span><br><span class="line">第 1 天：1, 2, 3, 4, 5</span><br><span class="line">第 2 天：6, 7</span><br><span class="line">第 3 天：8</span><br><span class="line">第 4 天：9</span><br><span class="line">第 5 天：10</span><br><span class="line"></span><br><span class="line">请注意，货物必须按照给定的顺序装运，因此使用载重能力为 14 的船舶并将包装分成 (2, 3, 4, 5), (1, 6, 7), (8), (9), (10) 是不允许的。 </span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：weights = [3,2,2,4,1,4], D = 3</span><br><span class="line">输出：6</span><br><span class="line">解释：</span><br><span class="line">船舶最低载重 6 就能够在 3 天内送达所有包裹，如下所示：</span><br><span class="line">第 1 天：3, 2</span><br><span class="line">第 2 天：2, 4</span><br><span class="line">第 3 天：1, 4</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：weights = [1,2,3,1,1], D = 4</span><br><span class="line">输出：3</span><br><span class="line">解释：</span><br><span class="line">第 1 天：1</span><br><span class="line">第 2 天：2</span><br><span class="line">第 3 天：3</span><br><span class="line">第 4 天：1, 1</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ol>
+<li> <code>1 &lt;= D &lt;= weights.length &lt;= 50000</code></li>
+<li> <code>1 &lt;= weights[i] &lt;= 500</code></li>
+</ol>
+<h4 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h4><p>Language: <strong>Java</strong></p>
+<h5 id="暴力枚举："><a href="#暴力枚举：" class="headerlink" title="暴力枚举："></a>暴力枚举：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">shipWithinDays</span><span class="params">(<span class="keyword">int</span>[] weights, <span class="keyword">int</span> D)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// int[] privs = new int[weights.length + 1];</span></span><br><span class="line">        <span class="keyword">int</span> sums = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> max = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; weights.length;i++) &#123;</span><br><span class="line">            sums += weights[i];</span><br><span class="line">            <span class="comment">// privs[i + 1] = privs[i] + weights[i];</span></span><br><span class="line">            max = Math.max(max,weights[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> start = Math.max(sums / D,max);</span><br><span class="line">        <span class="keyword">boolean</span> isOk = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> sum = <span class="number">0</span>; </span><br><span class="line">            <span class="keyword">int</span> pD = <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>;j &lt; weights.length;j++) &#123;</span><br><span class="line">                sum += weights[j];</span><br><span class="line">                <span class="keyword">if</span> (sum &gt; start) &#123;</span><br><span class="line">                    sum = weights[j];</span><br><span class="line">                    pD++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (pD &lt;= D) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            start++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> start;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="二分查找："><a href="#二分查找：" class="headerlink" title="二分查找："></a>二分查找：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">shipWithinDays</span><span class="params">(<span class="keyword">int</span>[] weights, <span class="keyword">int</span> D)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 确定二分查找左右边界</span></span><br><span class="line">        <span class="keyword">int</span> left = Arrays.stream(weights).max().getAsInt(), right = Arrays.stream(weights).sum();</span><br><span class="line">        <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">            <span class="keyword">int</span> mid = (left + right) / <span class="number">2</span>;</span><br><span class="line">            <span class="comment">// need 为需要运送的天数</span></span><br><span class="line">            <span class="comment">// cur 为当前这一天已经运送的包裹重量之和</span></span><br><span class="line">            <span class="keyword">int</span> need = <span class="number">1</span>, cur = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> weight : weights) &#123;</span><br><span class="line">                <span class="keyword">if</span> (cur + weight &gt; mid) &#123;</span><br><span class="line">                    ++need;</span><br><span class="line">                    cur = <span class="number">0</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                cur += weight;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (need &lt;= D) &#123;</span><br><span class="line">                right = mid;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                left = mid + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> left;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：LeetCode-Solution</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/capacity-to-ship-packages-within-d-days/solution/zai-d-tian-nei-song-da-bao-guo-de-neng-l-ntml/</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="同类型题目："><a href="#同类型题目：" class="headerlink" title="同类型题目："></a>同类型题目：</h4><ul>
+<li><a href="https://leetcode-cn.com/problems/koko-eating-bananas/">爱吃香蕉的珂珂</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>leetcode</category>
+        <category>二分查找</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>二分查找</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>最长有效括号</title>
+    <url>/2021/04/26/%E6%9C%80%E9%95%BF%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7/</url>
+    <content><![CDATA[<h3 id="32-最长有效括号"><a href="#32-最长有效括号" class="headerlink" title="32. 最长有效括号"></a><a href="https://leetcode-cn.com/problems/longest-valid-parentheses/">32. 最长有效括号</a></h3><p>Difficulty: ** 示例 1： 输入：s = “(()” 输出：2 解释：最长有效括号子串是 “()” 示例 2： 输入：s = “)()())” 输出：4 解释：最长有效括号子串是 “()()” 示例 3： 输入：s = “” 输出：0   提示： 0 &lt;= s.length &lt;= 3 * 104 s[i] 为 ‘(‘ 或 ‘)’ **</p>
+<p>给你一个只包含 <code>&#39;(&#39;</code> 和 <code>&#39;)&#39;</code> 的字符串，找出最长有效（格式正确且连续）括号子串的长度。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：s = &quot;(()&quot;</span><br><span class="line">输出：2</span><br><span class="line">解释：最长有效括号子串是 &quot;()&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：s = &quot;)()())&quot;</span><br><span class="line">输出：4</span><br><span class="line">解释：最长有效括号子串是 &quot;()()&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：s = &quot;&quot;</span><br><span class="line">输出：0</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li>  <code>0 &lt;= s.length &lt;= 3 * 10&lt;sup&gt;4&lt;/sup&gt;</code></li>
+<li>  <code>s[i]</code> 为 <code>&#39;(&#39;</code> 或 <code>&#39;)&#39;</code></li>
+</ul>
+<h4 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h4><p>Language: <strong>Java</strong></p>
+<h5 id="代码一："><a href="#代码一：" class="headerlink" title="代码一："></a>代码一：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 采用栈加上标记</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        Stack&lt;Integer&gt; st = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">        <span class="keyword">if</span> (s == <span class="keyword">null</span> || s.length() == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span>[] sums = <span class="keyword">new</span> <span class="keyword">int</span>[s.length()];</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>,temp = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; s.length(); i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (s.charAt(i) == <span class="string">&#x27;(&#x27;</span>) &#123;</span><br><span class="line">                st.push(i);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (!st.isEmpty()) &#123;</span><br><span class="line">                    sums[st.peek()] = <span class="number">1</span>;</span><br><span class="line">                    sums[i] = <span class="number">1</span>;</span><br><span class="line">                    st.pop();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; sums.length;i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (sums[i] == <span class="number">1</span>) &#123;</span><br><span class="line">                temp += <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                temp = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            res = Math.max(res,temp);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="代码二："><a href="#代码二：" class="headerlink" title="代码二："></a>代码二：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> maxans = <span class="number">0</span>;</span><br><span class="line">        Deque&lt;Integer&gt; stack = <span class="keyword">new</span> LinkedList&lt;Integer&gt;();</span><br><span class="line">        stack.push(-<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; s.length(); i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (s.charAt(i) == <span class="string">&#x27;(&#x27;</span>) &#123;</span><br><span class="line">                stack.push(i);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                stack.pop();</span><br><span class="line">                <span class="keyword">if</span> (stack.empty()) &#123;</span><br><span class="line">                    stack.push(i);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    maxans = Math.max(maxans, i - stack.peek());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> maxans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="代码三："><a href="#代码三：" class="headerlink" title="代码三："></a>代码三：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * dp 我想不完整dp迭代式</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> maxans = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[s.length()];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; s.length(); i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (s.charAt(i) == <span class="string">&#x27;)&#x27;</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (s.charAt(i - <span class="number">1</span>) == <span class="string">&#x27;(&#x27;</span>) &#123;</span><br><span class="line">                    dp[i] = (i &gt;= <span class="number">2</span> ? dp[i - <span class="number">2</span>] : <span class="number">0</span>) + <span class="number">2</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i - dp[i - <span class="number">1</span>] &gt; <span class="number">0</span> &amp;&amp; s.charAt(i - dp[i - <span class="number">1</span>] - <span class="number">1</span>) == <span class="string">&#x27;(&#x27;</span>) &#123;</span><br><span class="line">                    dp[i] = dp[i - <span class="number">1</span>] + ((i - dp[i - <span class="number">1</span>]) &gt;= <span class="number">2</span> ? dp[i - dp[i - <span class="number">1</span>] - <span class="number">2</span>] : <span class="number">0</span>) + <span class="number">2</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                maxans = Math.max(maxans, dp[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> maxans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>leetcode</category>
+        <category>栈</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>Stack</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>下一个排列</title>
+    <url>/2021/04/25/%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%8E%92%E5%88%97/</url>
+    <content><![CDATA[<h3 id="31-下一个排列"><a href="#31-下一个排列" class="headerlink" title="31. 下一个排列"></a><a href="https://leetcode-cn.com/problems/next-permutation/">31. 下一个排列</a></h3><p>Difficulty: <strong>中等</strong></p>
+<p>实现获取 <strong>下一个排列</strong> 的函数，算法需要将给定数字序列重新排列成字典序中下一个更大的排列。</p>
+<p>如果不存在下一个更大的排列，则将数字重新排列成最小的排列（即升序排列）。</p>
+<p>必须修改，只允许使用额外常数空间。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：nums = [1,2,3]</span><br><span class="line">输出：[1,3,2]</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：nums = [3,2,1]</span><br><span class="line">输出：[1,2,3]</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：nums = [1,1,5]</span><br><span class="line">输出：[1,5,1]</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 4：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：nums = [1]</span><br><span class="line">输出：[1]</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li>  <code>1 &lt;= nums.length &lt;= 100</code></li>
+<li>  <code>0 &lt;= nums[i] &lt;= 100</code></li>
+</ul>
+<h4 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h4><ul>
+<li>看到题之后就感觉很懵，有点搞不清怎么做，主要是还是理不清下一个排列到底怎么产生，也就是没有找到这样的一个规律。直接看官方题解把！</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">注意到下一个排列总是比当前排列要大，除非该排列已经是最大的排列。我们希望找到一种方法，能够找到一个大于当前序列的新序列，且变大的幅度尽可能小。具体地：</span><br><span class="line"></span><br><span class="line"><span class="bullet">	-</span> 我们需要将一个左边的「较小数」与一个右边的「较大数」交换，以能够让当前排列变大，从而得到下一个排列。</span><br><span class="line"><span class="bullet">	-</span> 同时我们要让这个「较小数」尽量靠右，而「较大数」尽可能小。当交换完成后，「较大数」右边的数需要按照升序重新排列。这样可以在保证新排列大于原来排列的情况下，使变大的幅度尽可能小。</span><br><span class="line">以排列 [<span class="string">4,5,2,6,3,1</span>][<span class="symbol">4,5,2,6,3,1</span>] 为例：</span><br><span class="line"><span class="code">	我们能找到的符合条件的一对「较小数」与「较大数」的组合为 22 与 33，满足「较小数」尽量靠右，而「较大数」尽可能小。当我们完成交换后排列变为 [4,5,3,6,2,1][4,5,3,6,2,1]，此时我们可以重排「较小数」右边的序列，序列变为 [4,5,3,1,2,6][4,5,3,1,2,6]。</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">具体地，我们这样描述该算法，对于长度为 nn 的排列 aa：</span><br><span class="line"><span class="bullet">	1.</span> 首先从后向前查找第一个顺序对 (i,i+1)(i,i+1)，满足 a[i] &lt; a[i+1]a[i]<span class="xml">&lt;a[i+1]。这样「较小数」即为 a[i]a[i]。此时 [i+1,n)[i+1,n) 必然是下降序列。</span></span><br><span class="line"><span class="xml">	2. 如果找到了顺序对，那么在区间 [i+1,n)[i+1,n) 中从后向前查找第一个元素 jj 满足 a[i] &lt; a[j]a[i]&lt;a[j]。这样「较大数」即为 a[j]a[j]。</span></span><br><span class="line"><span class="xml">	3. 交换 a[i]a[i] 与 a[j]a[j]，此时可以证明区间 [i+1,n)[i+1,n) 必为降序。我们可以直接使用双指针反转区间 [i+1,n)[i+1,n) 使其变为升序，而无需对该区间进行排序。</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h4><p>Language: <strong>Java</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">    public void nextPermutation(int[] nums) &#123;</span><br><span class="line">     // 我自己写的代码没有他这么优雅，就直接放官方代码了。</span><br><span class="line">        int i = nums.length - 2;</span><br><span class="line">        while (i &gt;= 0 &amp;&amp; nums[i] &gt;= nums[i + 1]) &#123;</span><br><span class="line">            i--;</span><br><span class="line">        &#125;</span><br><span class="line">        if (i &gt;= 0) &#123;</span><br><span class="line">            int j = nums.length - 1;</span><br><span class="line">            while (j &gt;= 0 &amp;&amp; nums[i] &gt;= nums[j]) &#123;</span><br><span class="line">                j--;</span><br><span class="line">            &#125;</span><br><span class="line">            swap(nums, i, j);</span><br><span class="line">        &#125;</span><br><span class="line">        reverse(nums, i + 1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void swap(int[] nums, int i, int j) &#123;</span><br><span class="line">        int temp = nums[i];</span><br><span class="line">        nums[i] = nums[j];</span><br><span class="line">        nums[j] = temp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void reverse(int[] nums, int start) &#123;</span><br><span class="line">        int left = start, right = nums.length - 1;</span><br><span class="line">        while (left &lt; right) &#123;</span><br><span class="line">            swap(nums, left, right);</span><br><span class="line">            left++;</span><br><span class="line">            right--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：LeetCode-Solution</span><br><span class="line">链接：https://leetcode-cn.com/problems/next-permutation/solution/xia-yi-ge-pai-lie-by-leetcode-solution/</span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>算法</category>
+        <category>leetcode</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>非常规题</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>合并K个有序链表</title>
+    <url>/2021/04/25/%E5%90%88%E5%B9%B6K%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/</url>
+    <content><![CDATA[<h3 id="23-合并K个升序链表"><a href="#23-合并K个升序链表" class="headerlink" title="23. 合并K个升序链表"></a><a href="https://leetcode-cn.com/problems/merge-k-sorted-lists/">23. 合并K个升序链表</a></h3><p>Difficulty: <strong>困难</strong></p>
+<p>给你一个链表数组，每个链表都已经按升序排列。</p>
+<p>请你将所有链表合并到一个升序链表中，返回合并后的链表。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：lists = [[1,4,5],[1,3,4],[2,6]]</span><br><span class="line">输出：[1,1,2,3,4,4,5,6]</span><br><span class="line">解释：链表数组如下：</span><br><span class="line">[</span><br><span class="line">  1-&gt;4-&gt;5,</span><br><span class="line">  1-&gt;3-&gt;4,</span><br><span class="line">  2-&gt;6</span><br><span class="line">]</span><br><span class="line">将它们合并到一个有序链表中得到。</span><br><span class="line">1-&gt;1-&gt;2-&gt;3-&gt;4-&gt;4-&gt;5-&gt;6</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：lists = []</span><br><span class="line">输出：[]</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 3：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：lists = [[]]</span><br><span class="line">输出：[]</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li>  <code>k == lists.length</code></li>
+<li>  <code>0 &lt;= k &lt;= 10^4</code></li>
+<li>  <code>0 &lt;= lists[i].length &lt;= 500</code></li>
+<li>  <code>-10^4 &lt;= lists[i][j] &lt;= 10^4</code></li>
+<li>  <code>lists[i]</code> 按 <strong>升序</strong> 排列</li>
+<li>  <code>lists[i].length</code> 的总和不超过 <code>10^4</code></li>
+</ul>
+<h4 id="观题思路"><a href="#观题思路" class="headerlink" title="观题思路"></a>观题思路</h4><ul>
+<li>最开始看见题目的时候想法就和合并两个有序链表一样，每次我将n个链表的最小的一个加入res链表中，注意这道题的头节点不确定，所以最好设置一个虚拟的头节点以及插入的tail位置指针。这样想了之后，就需要解决几个问题，第一个包含每个有序链表的当前最前面的节点的容器是什么？可以用题目给你数组，每次将某个链表的当前节点加入res后都更新数组中的值，这样也就有可能导致数组的某一项值为空。第二个就是如何判断哪一个节点是最小值？简单就用循环遍历数组就知道哪一个是最小值了。然后第三个问题就是怎么判断所有节点都已经加入了res了？数组的三个都为空的时候。至此，不考虑最优解的情况下，此题目按理说已经可以写出来了。(<code>代码参见代码一</code>)。</li>
+<li>通过上述的解法虽然说是解出来了，但是发现300+ms的运行时间，然后去看了题解，发现很多其他的精彩思路。</li>
+<li>首先先想一下上面我们是怎么去拿到每次最小的？是不是每次都需要比k个，有没有方法可以让比较的次数少一点呢？有！答案就是维护一个有序队列，将每个链表的当前节点都放入这个有序队列中，然后拿出队首最小的元素，再将队首最小的元素的下一个放入队列中，这样是不是就省去了每次都去比较。而有序队列在Java中有相关数据结构为PriorityQueue，直接用就好了。(<code>代码参考代码二</code>)</li>
+<li>我们都知道怎么去合并两个有序链表，那么n个可不可以转化为合并两个有序数组呢？可以的，先将前两个数组合并，得到结果数组，再将结果数组和后面一个数组合并，依次迭代，则可以得到答案。为了编写方便可以考虑把第一个有序链表就看做就是前面的结果数组。(<code>代码参考代码三</code>)。</li>
+<li>上述我们知道了逐个一个一个合并这样就可以拿到最终解决了，但是我们想一想，排序里面，我们除了可以慢慢的将一个数组排成有序，是不是还可以分治，两两间合并。(<code>代码参考代码四</code>)</li>
+</ul>
+<h4 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h4><p>Language: <strong>Java</strong></p>
+<h5 id="代码一："><a href="#代码一：" class="headerlink" title="代码一："></a>代码一：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * public class ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode next;</span></span><br><span class="line"><span class="comment"> *     ListNode() &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int val) &#123; this.val = val; &#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int val, ListNode next) &#123; this.val = val; this.next = next; &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeKLists</span><span class="params">(ListNode[] lists)</span> </span>&#123;</span><br><span class="line">        ListNode head = <span class="keyword">new</span> ListNode();</span><br><span class="line">        ListNode point = head;</span><br><span class="line">        <span class="keyword">boolean</span> flag = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">while</span> (flag) &#123;</span><br><span class="line">            flag = <span class="keyword">false</span>;</span><br><span class="line">            <span class="keyword">int</span> tempMin = Integer.MAX_VALUE;</span><br><span class="line">            <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; lists.length;i++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (lists[i] != <span class="keyword">null</span> &amp;&amp; lists[i].val &lt; tempMin) &#123;</span><br><span class="line">                    tempMin = lists[i].val;</span><br><span class="line">                    index = i;</span><br><span class="line">                    flag = <span class="keyword">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">                point.next = lists[index];</span><br><span class="line">                point = point.next;</span><br><span class="line">                lists[index] = lists[index].next;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> head.next;q</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="代码二："><a href="#代码二：" class="headerlink" title="代码二："></a>代码二：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeKLists</span><span class="params">(ListNode[] lists)</span> </span>&#123;</span><br><span class="line">        ListNode ans = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; lists.length; ++i) &#123;</span><br><span class="line">            ans = mergeTwoLists(ans, lists[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeTwoLists</span><span class="params">(ListNode a, ListNode b)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (a == <span class="keyword">null</span> || b == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> a != <span class="keyword">null</span> ? a : b;</span><br><span class="line">        &#125;</span><br><span class="line">        ListNode head = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        ListNode tail = head, aPtr = a, bPtr = b;</span><br><span class="line">        <span class="keyword">while</span> (aPtr != <span class="keyword">null</span> &amp;&amp; bPtr != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (aPtr.val &lt; bPtr.val) &#123;</span><br><span class="line">                tail.next = aPtr;</span><br><span class="line">                aPtr = aPtr.next;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                tail.next = bPtr;</span><br><span class="line">                bPtr = bPtr.next;</span><br><span class="line">            &#125;</span><br><span class="line">            tail = tail.next;</span><br><span class="line">        &#125;</span><br><span class="line">        tail.next = (aPtr != <span class="keyword">null</span> ? aPtr : bPtr);</span><br><span class="line">        <span class="keyword">return</span> head.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：LeetCode-Solution</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/merge-k-sorted-lists/solution/he-bing-kge-pai-xu-lian-biao-by-leetcode-solutio-2/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
+
+<h5 id="代码三："><a href="#代码三：" class="headerlink" title="代码三："></a>代码三：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeKLists</span><span class="params">(ListNode[] lists)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> merge(lists, <span class="number">0</span>, lists.length - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">merge</span><span class="params">(ListNode[] lists, <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (l == r) &#123;</span><br><span class="line">            <span class="keyword">return</span> lists[l];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (l &gt; r) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> mid = (l + r) &gt;&gt; <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> mergeTwoLists(merge(lists, l, mid), merge(lists, mid + <span class="number">1</span>, r));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeTwoLists</span><span class="params">(ListNode a, ListNode b)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (a == <span class="keyword">null</span> || b == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> a != <span class="keyword">null</span> ? a : b;</span><br><span class="line">        &#125;</span><br><span class="line">        ListNode head = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        ListNode tail = head, aPtr = a, bPtr = b;</span><br><span class="line">        <span class="keyword">while</span> (aPtr != <span class="keyword">null</span> &amp;&amp; bPtr != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (aPtr.val &lt; bPtr.val) &#123;</span><br><span class="line">                tail.next = aPtr;</span><br><span class="line">                aPtr = aPtr.next;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                tail.next = bPtr;</span><br><span class="line">                bPtr = bPtr.next;</span><br><span class="line">            &#125;</span><br><span class="line">            tail = tail.next;</span><br><span class="line">        &#125;</span><br><span class="line">        tail.next = (aPtr != <span class="keyword">null</span> ? aPtr : bPtr);</span><br><span class="line">        <span class="keyword">return</span> head.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：LeetCode-Solution</span><br><span class="line">链接：https:<span class="comment">//leetcode-cn.com/problems/merge-k-sorted-lists/solution/he-bing-kge-pai-xu-lian-biao-by-leetcode-solutio-2/</span></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
+
+<h5 id="代码四："><a href="#代码四：" class="headerlink" title="代码四："></a>代码四：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeKLists</span><span class="params">(ListNode[] lists)</span> </span>&#123;</span><br><span class="line">        PriorityQueue&lt;ListNode&gt; q = <span class="keyword">new</span> PriorityQueue&lt;&gt;((x,y)-&gt;x.val-y.val);</span><br><span class="line">        <span class="keyword">for</span>(ListNode node : lists)&#123;</span><br><span class="line">            <span class="keyword">if</span>(node!=<span class="keyword">null</span>)&#123;</span><br><span class="line">                q.add(node);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ListNode head = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        ListNode tail = head;</span><br><span class="line">        <span class="keyword">while</span>(!q.isEmpty())&#123;</span><br><span class="line">            tail.next = q.poll();</span><br><span class="line">            tail = tail.next;</span><br><span class="line">            <span class="keyword">if</span> (tail.next != <span class="keyword">null</span>)&#123;</span><br><span class="line">                q.add(tail.next);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> head.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>leetcode</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>分治</tag>
+        <tag>优先队列</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>组合总和归纳</title>
+    <url>/2021/04/24/%E7%BB%84%E5%90%88%E6%80%BB%E5%92%8C%E5%BD%92%E7%BA%B3/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>算法</category>
+        <category>leetcode</category>
+        <category>归纳总结</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>动态规划</tag>
+        <tag>回溯</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>组合总和IV</title>
+    <url>/2021/04/24/%E7%BB%84%E5%90%88%E6%80%BB%E5%92%8CIV/</url>
+    <content><![CDATA[<h3 id="377-组合总和-Ⅳ"><a href="#377-组合总和-Ⅳ" class="headerlink" title="377. 组合总和 Ⅳ"></a><a href="https://leetcode-cn.com/problems/combination-sum-iv/">377. 组合总和 Ⅳ</a></h3><h4 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h4><p>Difficulty: <strong>中等</strong></p>
+<p>给你一个由 <strong>不同</strong> 整数组成的数组 <code>nums</code> ，和一个目标整数 <code>target</code> 。请你从 <code>nums</code> 中找出并返回总和为 <code>target</code> 的元素组合的个数。</p>
+<p>题目数据保证答案符合 32 位整数范围。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：nums = [1,2,3], target = 4</span><br><span class="line">输出：7</span><br><span class="line">解释：</span><br><span class="line">所有可能的组合为：</span><br><span class="line">(1, 1, 1, 1)</span><br><span class="line">(1, 1, 2)</span><br><span class="line">(1, 2, 1)</span><br><span class="line">(1, 3)</span><br><span class="line">(2, 1, 1)</span><br><span class="line">(2, 2)</span><br><span class="line">(3, 1)</span><br><span class="line">请注意，顺序不同的序列被视作不同的组合。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：nums = [9], target = 3</span><br><span class="line">输出：0</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li>  <code>1 &lt;= nums.length &lt;= 200</code></li>
+<li>  <code>1 &lt;= nums[i] &lt;= 1000</code></li>
+<li>  <code>nums</code> 中的所有元素 <strong>互不相同</strong></li>
+<li>  <code>1 &lt;= target &lt;= 1000</code></li>
+</ul>
+<p><strong>进阶：</strong>如果给定的数组中含有负数会发生什么？问题会产生何种变化？如果允许负数出现，需要向题目中添加哪些限制条件？</p>
+<h4 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h4><p>Language: <strong>Java</strong></p>
+<h5 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h5><ul>
+<li><code>不知道为什么，最开始又是觉得回溯可以解，但是解出来又是超时，此时才去想回溯的时间复杂度，因为他实际上是求一个排列的问题，所以对于回溯来说，计算了太多无用的内容。</code></li>
+<li><code>动态规划，令dp[i]的为target=i时的组合数，此时考虑转移函数，当i&gt;0时，dp[i] += dp[i - nums[j]],nums[j]小于等于i，因为对于target = i - nums[j],此时只需要把nums[j]放到排列的后面，则可以组成target=i。考虑边界情况dp[0]，因为要计算dp[1]，所以dp[0] = 1</code></li>
+</ul>
+<h5 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">combinationSum4</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[target + <span class="number">1</span>];</span><br><span class="line">    dp[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>;i &lt;= target;i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>;j &lt; nums.length;j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[j] &lt;= i) &#123;</span><br><span class="line">                dp[i] += dp[i - nums[j]];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dp[target];</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>动态规划</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>动态规划</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>最大整除子集</title>
+    <url>/2021/04/23/%E6%9C%80%E5%A4%A7%E6%95%B4%E9%99%A4%E5%AD%90%E9%9B%86/</url>
+    <content><![CDATA[<h3 id="368-最大整除子集"><a href="#368-最大整除子集" class="headerlink" title="368. 最大整除子集"></a><a href="https://leetcode-cn.com/problems/largest-divisible-subset/">368. 最大整除子集</a></h3><h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h4><p>Difficulty: <strong>中等</strong></p>
+<p>给你一个由 <strong>无重复</strong> 正整数组成的集合 <code>nums</code> ，请你找出并返回其中最大的整除子集 <code>answer</code> ，子集中每一元素对 <code>(answer[i], answer[j])</code> 都应当满足：</p>
+<ul>
+<li>  <code>answer[i] % answer[j] == 0</code> ，或</li>
+<li>  <code>answer[j] % answer[i] == 0</code></li>
+</ul>
+<p>如果存在多个有效解子集，返回其中任何一个均可。</p>
+<p><strong>示例 1：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：nums = [1,2,3]</span><br><span class="line">输出：[1,2]</span><br><span class="line">解释：[1,3] 也会被视为正确答案。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：nums = [1,2,4,8]</span><br><span class="line">输出：[1,2,4,8]</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li>  <code>1 &lt;= nums.length &lt;= 1000</code></li>
+<li>  <code>1 &lt;= nums[i] &lt;= 2 * 10&lt;sup&gt;9&lt;/sup&gt;</code></li>
+<li>  <code>nums</code> 中的所有整数 <strong>互不相同</strong></li>
+</ul>
+<h4 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h4><p>Language: <strong>Java</strong></p>
+<h5 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h5><ul>
+<li><code>最开始看到题目的时候第一时间想到的回溯分析，因为回溯对于这类选择问题绝对是可以做的，因为他是一个暴力匹配，所以后续就在想有没有什么很好的剪枝方法，但是并没有找到好的剪枝方法。</code></li>
+<li><code>由于回溯的时间复杂度太高，只能考虑使用动态规划，而使用动态规划第一个就是要考虑定义一个什么状态，此题是叫我们求最长的整除子集，按照一般经验，此时我们应该定义dp[i]表示为在nums中前i位的最长整除子集长度。定义了状态后考虑状态转移函数，dp[i] = Math.max(dp[0 - j] + 1,dp[i]),而dp[0-j]表示nums[i] % nums[j] == 0时j的dp; (i &gt;= 1)，思考一下，如何才能保证nums[i] % nums[j] == 0时就可以保证nums[i]可以添加进入前面的集合？答案是将nums数组排序，因为后面的肯定比前面的大，也就是每次都是和子集的最大元素比较，如果当前元素能够整除子集的最大元素，则一定可以加入这个子集。在转移方程确定后，我们需要考虑的是如何将这个最长的整除子集返回，也就是如何拿到这个整除子集。可以考虑倒推法。也就是我们维护一个变量maxSize(==dp[i])和maxVal(==nums[i])，而后从后往前遍历dp数组，当dp[i] == maxSize时，如果maxVal % nums[i] == 0，那么表明maxSize和maxVal所记录的最大整除子集的最后一个就是这一个。而后将这个添加进入res，此后将maxSize--;maxVal = nums[i],循环下去，则能够找到所有的节点。</code></li>
+</ul>
+<h5 id="代码："><a href="#代码：" class="headerlink" title="代码："></a>代码：</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Integer&gt; <span class="title">largestDivisibleSubset</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        Arrays.sort(nums);</span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line">        <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line">        Arrays.fill(dp,<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">int</span> maxSize = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> maxVal = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>;i &lt; len;i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>;j &lt; i;j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[i] % nums[j] == <span class="number">0</span>) &#123;</span><br><span class="line">                    dp[i] = Math.max(dp[i],dp[j] + <span class="number">1</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (dp[i] &gt; maxSize) &#123;</span><br><span class="line">                maxSize = dp[i];</span><br><span class="line">                maxVal = nums[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        List&lt;Integer&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = len - <span class="number">1</span>;i &gt;= <span class="number">0</span>;i--) &#123;</span><br><span class="line">            <span class="keyword">if</span> (dp[i] == maxSize &amp;&amp; maxVal % nums[i] == <span class="number">0</span>)&#123;</span><br><span class="line">                res.add(nums[i]);</span><br><span class="line">                maxSize--;</span><br><span class="line">                maxVal = nums[i];</span><br><span class="line">            &#125; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>动态规划</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>动态规划</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>排序算法总结</title>
+    <url>/2021/04/22/%E6%8E%92%E5%BA%8F%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<p>[TOC]</p>
+<h3 id="排序算法"><a href="#排序算法" class="headerlink" title="排序算法"></a>排序算法</h3><h4 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h4><ul>
+<li><p>思路：</p>
+<p><code>先寻找一个坐标，然后将小于坐标的都放到坐标的左边，大于等于坐标的都放到坐标的右边，如此将原数组分成左右两块数组，对每个子数组执行上述的操作，直到子数组长度为1或者为空。（递归）</code></p>
+</li>
+<li><p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span>[] nums,<span class="keyword">int</span> start,<span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 递归终止条件</span></span><br><span class="line">    <span class="keyword">if</span> (start &gt;= end) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> point = nums[start];</span><br><span class="line">    <span class="keyword">int</span> l = start - <span class="number">1</span>,r = end + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (l &lt; r) &#123;</span><br><span class="line">        <span class="keyword">do</span> l++; <span class="keyword">while</span> (l &lt; r &amp;&amp; nums[l] &lt; point);</span><br><span class="line">        <span class="keyword">do</span> r--; <span class="keyword">while</span> (r &gt; l &amp;&amp; nums[r] &gt;= point);</span><br><span class="line">        <span class="comment">// 因为当l++ 到等于r后，后续r--会至少执行一次，导致r &lt; l,但是此时不应该发生交换</span></span><br><span class="line">        <span class="keyword">if</span> (l &lt; r)&#123;</span><br><span class="line">            <span class="keyword">int</span> temp = nums[l];</span><br><span class="line">            nums[l] = nums[r];</span><br><span class="line">            nums[r] = temp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    quick_sort(nums,start,r);</span><br><span class="line">    quick_sort(nums,r+<span class="number">1</span>,end);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>时间复杂度：</p>
+<ul>
+<li><p>最坏时间复杂度： <code>O(n^2)</code></p>
+</li>
+<li><p>平均时间复杂度：<code>O(n·logn)</code></p>
+</li>
+<li><p>最优时间复杂度：<code>O(n·logn)</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h4><ul>
+<li><p>思路：</p>
+<ul>
+<li><code>比较相邻的元素。如果第一个比第二个大，就交换他们两个。</code></li>
+<li><code>对每一对相邻元素作同样的工作，从开始第一对到结尾的最后一对。这步做完后，最后的元素会是最大的数。</code></li>
+<li><code>针对所有的元素重复以上的步骤，除了最后一个。</code></li>
+<li><code>持续每次对越来越少的元素重复上面的步骤，直到没有任何一对数字需要比较。</code></li>
+</ul>
+</li>
+<li><p>算法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">int</span>[] bubbleSort(<span class="keyword">int</span>[] array) &#123;</span><br><span class="line">    <span class="keyword">int</span> temp;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; array.length - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">boolean</span> Flag = <span class="keyword">false</span>; <span class="comment">// 是否发生交换。没有交换，提前跳出外层循环</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; array.length - <span class="number">1</span> - i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (array[j] &gt; array[j + <span class="number">1</span>]) &#123;</span><br><span class="line">                temp = array[j];</span><br><span class="line">                array[j] = array[j + <span class="number">1</span>];</span><br><span class="line">                array[j + <span class="number">1</span>] = temp;</span><br><span class="line">                Flag = <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!Flag)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> array;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>时间复杂度：</p>
+<ul>
+<li><p>最坏时间复杂度： <code>O(n^2)</code></p>
+</li>
+<li><p>平均时间复杂度：<code>O(n^2)</code></p>
+</li>
+<li><p>最优时间复杂度：<code>O(n)</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h4><ul>
+<li><p>思路：</p>
+<ul>
+<li><code>在数组前部维护一个有序区间，初始时有序区间的长度为1，而后从index = 1开始逐个添加进入有序区间，就和抓牌时抓一个插入一个一样。因为少了很多比较次数，但是相比之下，他每次往有序数组中插入时都需要移动一部分元素</code></li>
+</ul>
+</li>
+<li><p>算法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 插入排序</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> nums</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">insertionSort</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> len = nums.length;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> temp = nums[i];</span><br><span class="line">        <span class="keyword">int</span> pointer = i;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = i - <span class="number">1</span>; j &gt;= <span class="number">0</span>; j--) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[j] &gt;= temp) &#123;</span><br><span class="line">                nums[j + <span class="number">1</span>] = nums[j];</span><br><span class="line">                pointer = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        nums[pointer] = temp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>时间复杂度：</p>
+<ul>
+<li>最坏时间复杂度： <code>O(n^2)</code></li>
+<li>平均时间复杂度：<code>O(n^2)</code>  </li>
+<li>最优时间复杂度：<code>O(n)</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h4><ul>
+<li><p>思路：</p>
+<ul>
+<li><code>选择，顾名思义，每次选择待排序数组中的剩余的最大值（最小值）移动到有序序列的最前（最后）。思考一下，我们需要在代码中维护两个循环变量，一个是下一个极值放置位置的索引，另一个就是循环查找极值的循环。</code></li>
+</ul>
+</li>
+<li><p>算法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 选择排序</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> nums</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">maopao_sort</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = nums.length;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = n - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="keyword">int</span> nextIndex = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt;= i;j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[j] &gt; nums[nextIndex]) &#123;</span><br><span class="line">                nextIndex = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> temp = nums[i];</span><br><span class="line">        nums[i] = nums[nextIndex];</span><br><span class="line">        nums[nextIndex] = temp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>时间复杂度：</p>
+<ul>
+<li>最坏时间复杂度： <code>O(n^2)</code></li>
+<li>平均时间复杂度：<code>O(n^2)</code>  </li>
+<li>最优时间复杂度：<code>O(n^2)</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h4><ul>
+<li><p>思路：</p>
+<ul>
+<li><code>指利用堆这种数据结构所设计的一种排序算法。堆是一个近似完全二叉树的结构，并同时满足堆的性质：即子节点的键值或索引总是小于（或者大于）它的父节点</code></li>
+<li><code>整体上有两个步骤，第一个就是构建堆，将数组构建为一个大顶堆或者小顶堆</code></li>
+<li><code>第二步，在数组尾部(前部)维护一个有序序列，每次将堆顶元素移到有序序列的最前面，而后将原本在此地的值移入堆顶，然后重新构建堆</code></li>
+</ul>
+</li>
+<li><p>算法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 堆排序</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Classname</span> HeapSort</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span> TODO</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span> 2021/4/22 21:21</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Created</span> by Huan</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HeapSort</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 堆排序的主要入口方法，共两步。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(<span class="keyword">int</span>[] arr)</span> </span>&#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         *  第一步：将数组堆化</span></span><br><span class="line"><span class="comment">         *  beginIndex = 第一个非叶子节点。</span></span><br><span class="line"><span class="comment">         *  从第一个非叶子节点开始即可。无需从最后一个叶子节点开始。</span></span><br><span class="line"><span class="comment">         *  叶子节点可以看作已符合堆要求的节点，根节点就是它自己且自己以下值为最大。</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">int</span> len = arr.length - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> beginIndex = (arr.length &gt;&gt; <span class="number">1</span>)- <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = beginIndex; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            maxHeapify(arr,i, len);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * 第二步：对堆化数据排序</span></span><br><span class="line"><span class="comment">         * 每次都是移出最顶层的根节点A[0]，与最尾部节点位置调换，同时遍历长度 - 1。</span></span><br><span class="line"><span class="comment">         * 然后从新整理被换到根节点的末尾元素，使其符合堆的特性。</span></span><br><span class="line"><span class="comment">         * 直至未排序的堆长度为 0。</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = len; i &gt; <span class="number">0</span>; i--) &#123;</span><br><span class="line">            swap(arr,<span class="number">0</span>, i);</span><br><span class="line">            maxHeapify(arr,<span class="number">0</span>, i - <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> temp = arr[i];</span><br><span class="line">        arr[i] = arr[j];</span><br><span class="line">        arr[j] = temp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 调整索引为 index 处的数据，使其符合堆的特性。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> index 需要堆化处理的数据的索引</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> len 未排序的堆（数组）的长度</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">maxHeapify</span><span class="params">(<span class="keyword">int</span>[] arr,<span class="keyword">int</span> index, <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> li = (index &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>; <span class="comment">// 左子节点索引</span></span><br><span class="line">        <span class="keyword">int</span> ri = li + <span class="number">1</span>;           <span class="comment">// 右子节点索引</span></span><br><span class="line">        <span class="keyword">int</span> cMax = li;             <span class="comment">// 子节点值最大索引，默认左子节点。</span></span><br><span class="line">        <span class="keyword">if</span> (li &gt; len) <span class="keyword">return</span>;      <span class="comment">// 左子节点索引超出计算范围，直接返回。</span></span><br><span class="line">        <span class="keyword">if</span> (ri &lt;= len &amp;&amp; arr[ri] &gt; arr[li]) <span class="comment">// 先判断左右子节点，哪个较大。</span></span><br><span class="line">            cMax = ri;</span><br><span class="line">        <span class="keyword">if</span> (arr[cMax] &gt; arr[index]) &#123;</span><br><span class="line">            swap(arr,cMax, index);      <span class="comment">// 如果父节点被子节点调换，</span></span><br><span class="line">            maxHeapify(arr,cMax, len);  <span class="comment">// 则需要继续判断换下后的父节点是否符合堆的特性。</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 测试用例</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 输出：</span></span><br><span class="line"><span class="comment">     * [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9]</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[] &#123;<span class="number">3</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">8</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">6</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">4</span>, <span class="number">7</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">7</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">9</span>, <span class="number">7</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">6</span>&#125;;</span><br><span class="line">        sort(arr);</span><br><span class="line">        System.out.println(Arrays.toString(arr));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>时间复杂度：</p>
+<ul>
+<li>最坏时间复杂度： <code>O(n·logn)</code></li>
+<li>平均时间复杂度：<code>O(n·logn)</code>  </li>
+<li>最优时间复杂度：<code>O(n·logn)</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h4><ul>
+<li><p>思路：</p>
+<ul>
+<li><code>在插入排序中，如果某个数开始所处位置和他排序后所处位置相差过大，则会导致非常多的交换操作，而希尔排序则是利用这一点，在开始的时候使用大步长，尽量的使nums[i]的位置尽早的在排序后所处位置附近。理论证明插入排序中占主要时间的是交换操作。</code></li>
+<li><code>由希尔排序的含义可知，</code></li>
+</ul>
+</li>
+<li><p>算法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">shellSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> length = arr.length;</span><br><span class="line">        <span class="keyword">int</span> temp;</span><br><span class="line">    	<span class="comment">// 步长循环</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> step = length / <span class="number">2</span>; step &gt;= <span class="number">1</span>; step /= <span class="number">2</span>) &#123;</span><br><span class="line">            <span class="comment">// 插入排序</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = step; i &lt; length; i++) &#123;</span><br><span class="line">                temp = arr[i];</span><br><span class="line">                <span class="keyword">int</span> j = i - step;</span><br><span class="line">                <span class="keyword">while</span> (j &gt;= <span class="number">0</span> &amp;&amp; arr[j] &gt; temp) &#123;</span><br><span class="line">                    arr[j + step] = arr[j];</span><br><span class="line">                    j -= step;</span><br><span class="line">                &#125;</span><br><span class="line">                arr[j + step] = temp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>时间复杂度：</p>
+<ul>
+<li>最坏时间复杂度： ``</li>
+<li>平均时间复杂度：<code>根据步长序列的选择不同而不同,已知最好为O(n·log^2·n)</code>  </li>
+<li>最优时间复杂度：<code>O(n)</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h4><ul>
+<li><p>思路：</p>
+<ul>
+<li><code>递归的将当前序列分为两半</code></li>
+<li><code>保持元素顺序为基础将上一步得到的子序列合二为一</code></li>
+</ul>
+</li>
+<li><p>算法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 归并排序</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">merge_sort_recursive</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span>[] result, <span class="keyword">int</span> start, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (start &gt;= end)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="keyword">int</span> len = end - start, mid = (len &gt;&gt; <span class="number">1</span>) + start;</span><br><span class="line">	<span class="keyword">int</span> start1 = start, end1 = mid;</span><br><span class="line">	<span class="keyword">int</span> start2 = mid + <span class="number">1</span>, end2 = end;</span><br><span class="line">	merge_sort_recursive(arr, result, start1, end1);</span><br><span class="line">	merge_sort_recursive(arr, result, start2, end2);</span><br><span class="line">	<span class="keyword">int</span> k = start;</span><br><span class="line">	<span class="keyword">while</span> (start1 &lt;= end1 &amp;&amp; start2 &lt;= end2)</span><br><span class="line">		result[k++] = arr[start1] &lt; arr[start2] ? arr[start1++] : arr[start2++];</span><br><span class="line">	<span class="keyword">while</span> (start1 &lt;= end1)</span><br><span class="line">		result[k++] = arr[start1++];</span><br><span class="line">	<span class="keyword">while</span> (start2 &lt;= end2)</span><br><span class="line">		result[k++] = arr[start2++];</span><br><span class="line">	<span class="keyword">for</span> (k = start; k &lt;= end; k++)</span><br><span class="line">		arr[k] = result[k];</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">merge_sort</span><span class="params">(<span class="keyword">int</span>[] arr)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> len = arr.length;</span><br><span class="line">	<span class="keyword">int</span>[] result = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line">	merge_sort_recursive(arr, result, <span class="number">0</span>, len - <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>时间复杂度：</p>
+<ul>
+<li>最坏时间复杂度： <code>O(n·logn)</code></li>
+<li>平均时间复杂度：<code>O(n·logn)</code>  </li>
+<li>最优时间复杂度：<code>O(n·logn)</code></li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>排序算法</category>
+      </categories>
+      <tags>
+        <tag>排序</tag>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>矩形区域不超过k的最大数值和_363</title>
+    <url>/2021/04/22/%E7%9F%A9%E5%BD%A2%E5%8C%BA%E5%9F%9F%E4%B8%8D%E8%B6%85%E8%BF%87K%E7%9A%84%E6%9C%80%E5%A4%A7%E6%95%B0%E5%80%BC%E5%92%8C/</url>
+    <content><![CDATA[<h3 id="363-矩形区域不超过-K-的最大数值和"><a href="#363-矩形区域不超过-K-的最大数值和" class="headerlink" title="363. 矩形区域不超过 K 的最大数值和"></a><a href="https://leetcode-cn.com/problems/max-sum-of-rectangle-no-larger-than-k/">363. 矩形区域不超过 K 的最大数值和</a></h3><p>Difficulty: <strong>困难</strong></p>
+<p>给你一个 <code>m x n</code> 的矩阵 <code>matrix</code> 和一个整数 <code>k</code> ，找出并返回矩阵内部矩形区域的不超过 <code>k</code> 的最大数值和。</p>
+<p>题目数据保证总会存在一个数值和不超过 <code>k</code> 的矩形区域。</p>
+<p><strong>示例 1：</strong></p>
+<p><img src="https://assets.leetcode.com/uploads/2021/03/18/sum-grid.jpg"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：matrix = [[1,0,1],[0,-2,3]], k = 2</span><br><span class="line">输出：2</span><br><span class="line">解释：蓝色边框圈出来的矩形区域 [[0, 1], [-2, 3]] 的数值和是 2，且 2 是不超过 k 的最大数字（k = 2）。</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例 2：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入：matrix = [[2,2,-1]], k = 3</span><br><span class="line">输出：3</span><br></pre></td></tr></table></figure>
+
+<p><strong>提示：</strong></p>
+<ul>
+<li>  <code>m == matrix.length</code></li>
+<li>  <code>n == matrix[i].length</code></li>
+<li>  <code>1 &lt;= m, n &lt;= 100</code></li>
+<li>  <code>-100 &lt;= matrix[i][j] &lt;= 100</code></li>
+<li>  <code>-10&lt;sup&gt;5&lt;/sup&gt; &lt;= k &lt;= 10&lt;sup&gt;5&lt;/sup&gt;</code></li>
+</ul>
+<p><strong>进阶：</strong>如果行数远大于列数，该如何设计解决方案？</p>
+<h4 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h4><p>Language: <strong>java</strong></p>
+<p><strong>思路1：</strong></p>
+<p><code>利用区间db的思路去做，也就是先定义一个状态sums[i][j][rlen][clen]，表示以i，j为矩阵左顶点，rlen行，clen列的矩阵的数值和。然后就是去思考如何做一个正确的状态转换方程，在这里面需要一起思考如何去进行循环以便于计算当前状态转换时前一个状态已经被计算过了。</code></p>
+<p><strong>代码1：</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxSumSubmatrix</span><span class="params">(<span class="keyword">int</span>[][] matrix, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> m = matrix.length, n = matrix[<span class="number">0</span>].length;</span><br><span class="line">        <span class="keyword">int</span>[][][][] sums = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>][n][n + <span class="number">1</span>][m + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> res = Integer.MIN_VALUE;</span><br><span class="line">        <span class="keyword">int</span> flag = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = m - <span class="number">1</span>;i &gt;= <span class="number">0</span>;i--) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = n - <span class="number">1</span>;j &gt;= <span class="number">0</span>;j--) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> rlen = <span class="number">1</span>;rlen + j &lt;= n;rlen++) &#123;</span><br><span class="line">                    <span class="keyword">for</span> (<span class="keyword">int</span> clen = <span class="number">1</span>;clen + i &lt;= m;clen++) &#123;</span><br><span class="line">                        <span class="keyword">if</span> (rlen == <span class="number">1</span> &amp;&amp; clen == <span class="number">1</span>) &#123;</span><br><span class="line">                            sums[flag][j][rlen][clen] = matrix[i][j];</span><br><span class="line">                        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (rlen == <span class="number">1</span>) &#123;</span><br><span class="line">                            sums[flag][j][rlen][clen] = sums[(flag + <span class="number">1</span>) % <span class="number">2</span>][j][rlen][clen - <span class="number">1</span>] + matrix[i][j];</span><br><span class="line">                        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (clen == <span class="number">1</span>) &#123;</span><br><span class="line">                            sums[flag][j][rlen][clen] = sums[flag][j + <span class="number">1</span>][rlen - <span class="number">1</span>][clen] + matrix[i][j];</span><br><span class="line">                        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                            sums[flag][j][rlen][clen] = sums[flag][j][<span class="number">1</span>][clen] + sums[flag][j + <span class="number">1</span>][rlen - <span class="number">1</span>][clen];</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">if</span> (sums[flag][j][rlen][clen] &gt; res &amp;&amp; sums[flag][j][rlen][clen] &lt;= k) &#123;</span><br><span class="line">                            res = sums[flag][j][rlen][clen];</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            flag = (flag + <span class="number">1</span>) % <span class="number">2</span>;</span><br><span class="line">            sums[flag] = <span class="keyword">new</span> <span class="keyword">int</span>[n][n + <span class="number">1</span>][m + <span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>官方思路：</strong></p>
+<p><code>   枚举i - k 行的矩阵不同列的前缀和，而后题目便变成了在一个一维的前缀和集合中求最接近k的区间和。区间和sum = Sr - Sl;Sr - Sl &lt;= k;此时可以利用TreeSet集合的ceiling函数求Sl，然后用Math.max比较的到最大值。</code></p>
+<p><strong>官方题解：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">    public int maxSumSubmatrix(int[][] matrix, int k) &#123;</span><br><span class="line">        int ans = Integer.MIN_VALUE;</span><br><span class="line">        int m = matrix.length, n = matrix[0].length;</span><br><span class="line">        for (int i = 0; i &lt; m; ++i) &#123; // 枚举上边界</span><br><span class="line">            int[] sum = new int[n];</span><br><span class="line">            for (int j = i; j &lt; m; ++j) &#123; // 枚举下边界</span><br><span class="line">                for (int c = 0; c &lt; n; ++c) &#123;</span><br><span class="line">                    sum[c] += matrix[j][c]; // 更新每列的元素和</span><br><span class="line">                &#125;</span><br><span class="line">                TreeSet&lt;Integer&gt; sumSet = new TreeSet&lt;Integer&gt;();</span><br><span class="line">                sumSet.add(0);</span><br><span class="line">                int s = 0;</span><br><span class="line">                for (int v : sum) &#123;</span><br><span class="line">                    s += v;</span><br><span class="line">                    Integer ceil = sumSet.ceiling(s - k);</span><br><span class="line">                    if (ceil != null) &#123;</span><br><span class="line">                        ans = Math.max(ans, s - ceil);</span><br><span class="line">                    &#125;</span><br><span class="line">                    sumSet.add(s);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">作者：LeetCode-Solution</span><br><span class="line">链接：https://leetcode-cn.com/problems/max-sum-of-rectangle-no-larger-than-k/solution/ju-xing-qu-yu-bu-chao-guo-k-de-zui-da-sh-70q2/</span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>leetcode</category>
+        <category>区间dp</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>算法</tag>
+        <tag>区间dp</tag>
+        <tag>dp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java并发基本理论</title>
+    <url>/2021/03/27/Java%E5%B9%B6%E5%8F%91/</url>
+    <content><![CDATA[<h1 id="Java并发"><a href="#Java并发" class="headerlink" title="Java并发"></a>Java并发</h1><h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><h3 id="线程和进程的区别"><a href="#线程和进程的区别" class="headerlink" title="线程和进程的区别"></a>线程和进程的区别</h3><h3 id="创建线程的方式"><a href="#创建线程的方式" class="headerlink" title="创建线程的方式"></a>创建线程的方式</h3><ul>
+<li><p>其实新建线程的方式就只有一种，就是Thread类的Start0方法，但是这个方法是一个private native方法。并且这个方法也只在start方法中被调用到了。而start方法他的执行逻辑是先去判断这个线程有没有执行过start方法，有一个状态位，如果没有，就去调用start0方法。start0方法是一个本地方法，他在里面去回调run方法。 所以创建线程的方法只有这个start0方法。</p>
+</li>
+<li><p>继承Thread类重写run方法</p>
+</li>
+<li><p>实现Runnable接口</p>
+</li>
+<li><p>Callable</p>
+<ul>
+<li>Future接口定义一个规则，就是可以取值和取消任务，然后就是RunnableFuture，它实现了Runable和Future，最后就是FutureTask，它实现了RunnableFuture，一般Callable其实还是去通过Thread或者线程池的submit去提交一个任务</li>
+</ul>
+</li>
+</ul>
+<h3 id="线程的状态转换"><a href="#线程的状态转换" class="headerlink" title="线程的状态转换"></a>线程的状态转换</h3><ul>
+<li>NEW、RUNNABLE、WAIT、TIME_WAIT、BLOCKED、TERMINATED</li>
+<li>wait、LockSupport.park()</li>
+</ul>
+<h3 id="基本API"><a href="#基本API" class="headerlink" title="基本API"></a>基本API</h3><ul>
+<li><p>yield</p>
+</li>
+<li><p>sleep</p>
+<ul>
+<li>TimeUnit.sleep</li>
+</ul>
+</li>
+<li><p>join</p>
+</li>
+<li><p>start</p>
+</li>
+<li><p>run</p>
+</li>
+</ul>
+<h3 id="怎么去停止线程？"><a href="#怎么去停止线程？" class="headerlink" title="怎么去停止线程？"></a>怎么去停止线程？</h3><ul>
+<li><ol>
+<li>不推荐的方式 stop 、suspend</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>中断 interrupt</li>
+</ol>
+<ul>
+<li><p>isInterrupt()方法</p>
+<ul>
+<li>重载，如果参数设置为true，则会清除中断标记，而interrupted方法则是调用了这个方法</li>
+</ul>
+</li>
+<li><p>interrupted() 方法，会还原中断标记</p>
+</li>
+</ul>
+</li>
+<li><ol start="3">
+<li>标志对象</li>
+</ol>
+<ul>
+<li>volatile</li>
+</ul>
+</li>
+</ul>
+<h2 id="线程同步的基本方法"><a href="#线程同步的基本方法" class="headerlink" title="线程同步的基本方法"></a>线程同步的基本方法</h2><h3 id="CAS-Compare-and-swap"><a href="#CAS-Compare-and-swap" class="headerlink" title="CAS(Compare and swap)"></a>CAS(Compare and swap)</h3><ul>
+<li><p>比较并交换，AQS和偏向锁，原子类，类的初始化等等都用的是这个</p>
+</li>
+<li><p>基于cmpxchg指令</p>
+</li>
+<li><p>缺点</p>
+<ul>
+<li>ABA问题，增加版本号</li>
+<li>空自旋等待成功</li>
+</ul>
+</li>
+</ul>
+<h3 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h3><ul>
+<li><p>功能</p>
+<ul>
+<li>保证可见性</li>
+<li>禁止重排序</li>
+</ul>
+</li>
+<li><p>实现</p>
+<ul>
+<li><p>可见性的保证</p>
+<ul>
+<li><p>jvm层面 ，use前read，write后store</p>
+</li>
+<li><p>cpu层面</p>
+<p>因为volatile关键字主要是去实现共享变量的可见性，在cpu执行中，cpu并不直接向内存交换数据，而是和缓存行，也就是cpu拿和修改数据都是在缓存行里面。这个时候就会有一个问题，不同cpu中的L1,L2缓存中可能不一样。而volatile关键字在底层主要就是在指令前加了lock前缀，而lock前缀最关键的作用就是会引起处理器缓存回写到内存。一个处理器的缓存回写到内存会导致其他处理器的缓存无效。处理器使用嗅探技术保证它的内部缓存、系统内存和其他处理器的<br>缓存的数据在总线上保持一致。</p>
+</li>
+</ul>
+</li>
+<li><p>禁止重排序的实现</p>
+<ul>
+<li><p>内存屏障</p>
+</li>
+<li><p>happens-before</p>
+<p>一个volatile对象的写，happens-before任何后续对这个volatile对象的读</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="syncronized"><a href="#syncronized" class="headerlink" title="syncronized"></a>syncronized</h3><ul>
+<li><p>功能</p>
+<ul>
+<li>原子性</li>
+<li>可见性</li>
+<li>可重入性</li>
+</ul>
+</li>
+<li><p>实现</p>
+<ul>
+<li><p>普通同步方法</p>
+</li>
+<li><p>静态同步方法</p>
+</li>
+<li><p>同步代码块</p>
+<ul>
+<li>monitorenter</li>
+<li>monitorexit</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>原理</p>
+<ul>
+<li>不管是monitorenter这些指令还是ACC_SYNCRONOUS标志，他们的目的都只是一个，判别这是一个同步方法，去要去控制线程同步。此时他们都会去找此对象关联的monitor对象，尝试去acquire这个监视器。如果拿到了就进去，如果没有拿到，则进入这个monitor负责的阻塞队列中。</li>
+<li>前面的也不一定准备，因为jdk1.6的时候对这个做了优化，增加了偏向锁，轻量级锁。所以你进去的时候会先尝试偏向锁，然后再试后面的。锁升级</li>
+</ul>
+</li>
+<li><p>锁升级</p>
+<ul>
+<li><p>无锁</p>
+</li>
+<li><p>偏向锁</p>
+<ul>
+<li>大部分时候都是一个线程在访问。。。只需要比较线程id是否一致，。。</li>
+<li>先看偏向锁指向的线程id是否存活，不存活的话直接cas改掉线程id，获得锁，存活则看它是否需要继续争抢锁，如果争抢，升级为轻量级锁，或者判断epoch的大小是否超过40，如果超过，也升级为轻量级锁。</li>
+</ul>
+</li>
+<li><p>轻量级锁</p>
+<ul>
+<li>轻量级锁的主要思想就是大部分的锁立马就可以拿到，如果直接去阻塞然后唤醒，因为需要转换内核和用户态，那效率就很低，所以他就自旋等待，一般是10次，如果没有拿到，升级为重量锁，或者自旋等待时又有一个线程来抢，则立马升级为重量锁。jdk后续将自旋锁改为了自适应自旋锁，也就是等待时间可以参考前面是否有线程自旋等待成功。如果有，就等久一点</li>
+</ul>
+</li>
+<li><p>重量级锁</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h3><ul>
+<li>ReentrantLock</li>
+<li>ReentrantRedaWriteLock</li>
+</ul>
+<h2 id="Java内存模型"><a href="#Java内存模型" class="headerlink" title="Java内存模型"></a>Java内存模型</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>Java它想建立一个抽象的高级的内存模型，以去抵消掉不同的底层所带来的影响。方便程序员的编写。他不是一个具体的实现，他更多的是一种规范，去声明和指定以及保证多个线程正确的同步执行。<br>它对于多线程，每一个线程都有一个自己的本地内存，这个本地存储是每个线程独享的，然后他们有一个共享内存，一般就是堆。而本地内存和主内存之间的数据交换就是由JMM控制。</p>
+<h3 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h3><h3 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h3><ul>
+<li><p>双重检查锁定</p>
+<ul>
+<li><p>由于对象new时分配空间，初始化，将地址空间传递给对象，二三步的执行顺序并不一定就是这样，所以可能导致访问到未被正确初始化的对象。</p>
+</li>
+<li><p>解决办法</p>
+<ul>
+<li>volatile</li>
+<li>借助于类初始化的锁机制，用静态内部类初始化一个</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h3><h3 id="happens-before原则"><a href="#happens-before原则" class="headerlink" title="happens-before原则"></a>happens-before原则</h3><p>程序顺序原则，即在一个线程内必须保证语义串行性，也就是说按照代码顺序执行。<br>锁规则 解锁(unlock)操作必然发生在后续的同一个锁的加锁(lock)之前，也就是说，如果对于一个锁解锁后，再加锁，那么加锁的动作必须在解锁动作之后(同一个锁)。<br>volatile规则 volatile变量的写，先发生于读，这保证了volatile变量的可见性，简单的理解就是，volatile变量在每次被线程访问时，都强迫从主内存中读该变量的值，而当该变量发生变化时，又会强迫将最新的值刷新到主内存，任何时刻，不同的线程总是能够看到该变量的最新值。<br>线程启动规则 线程的start()方法先于它的每一个动作，即如果线程A在执行线程B的start方法之前修改了共享变量的值，那么当线程B执行start方法时，线程A对共享变量的修改对线程B可见<br>传递性 A先于B ，B先于C 那么A必然先于C<br>线程终止规则 线程的所有操作先于线程的终结，Thread.join()方法的作用是等待当前执行的线程终止。假设在线程B终止之前，修改了共享变量，线程A从线程B的join方法成功返回后，线程B对共享变量的修改将对线程A可见。<br>线程中断规则 对线程 interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生，可以通过Thread.interrupted()方法检测线程是否中断。<br>对象终结规则 对象的构造函数执行，结束先于finalize()方法</p>
+<h3 id="final内存语义"><a href="#final内存语义" class="headerlink" title="final内存语义"></a>final内存语义</h3><ul>
+<li>禁止把final域的写重排序到构造函数之外，可以保证在对象引用为任意线程可见之前,对象的final域已经被正确初始化过了</li>
+<li>初次读对象引用与初次读该对象包含的final<br>域,</li>
+</ul>
+<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="Lock接口"><a href="#Lock接口" class="headerlink" title="Lock接口"></a>Lock接口</h3><p>/*</p>
+<ul>
+<li>ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.</li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li>/</li>
+</ul>
+<p>/*<br> *<br> *<br> *<br> *<br> *</p>
+<ul>
+<li>Written by Doug Lea with assistance from members of JCP JSR-166</li>
+<li>Expert Group and released to the public domain, as explained at</li>
+<li><a href="http://creativecommons.org/publicdomain/zero/1.0/">http://creativecommons.org/publicdomain/zero/1.0/</a></li>
+<li>/</li>
+</ul>
+<p>package java.util.concurrent.locks;</p>
+<p>import java.util.concurrent.TimeUnit;</p>
+<p>/**</p>
+<ul>
+<li><p>{@code Lock} implementations provide more extensive locking</p>
+</li>
+<li><p>operations than can be obtained using {@code synchronized} methods</p>
+</li>
+<li><p>and statements.  They allow more flexible structuring, may have</p>
+</li>
+<li><p>quite different properties, and may support multiple associated</p>
+</li>
+<li><p>{@link Condition} objects.</p>
+</li>
+<li></li>
+<li><p>A lock is a tool for controlling access to a shared resource by</li>
+<li><p>multiple threads. Commonly, a lock provides exclusive access to a</p>
+</li>
+<li><p>shared resource: only one thread at a time can acquire the lock and</p>
+</li>
+<li><p>all access to the shared resource requires that the lock be</p>
+</li>
+<li><p>acquired first. However, some locks may allow concurrent access to</p>
+</li>
+<li><p>a shared resource, such as the read lock of a {@link ReadWriteLock}.</p>
+</li>
+<li></li>
+<li><p>The use of {@code synchronized} methods or statements provides</li>
+<li><p>access to the implicit monitor lock associated with every object, but</p>
+</li>
+<li><p>forces all lock acquisition and release to occur in a block-structured way:</p>
+</li>
+<li><p>when multiple locks are acquired they must be released in the opposite</p>
+</li>
+<li><p>order, and all locks must be released in the same lexical scope in which</p>
+</li>
+<li><p>they were acquired.</p>
+</li>
+<li></li>
+<li><p>While the scoping mechanism for {@code synchronized} methods</li>
+<li><p>and statements makes it much easier to program with monitor locks,</p>
+</li>
+<li><p>and helps avoid many common programming errors involving locks,</p>
+</li>
+<li><p>there are occasions where you need to work with locks in a more</p>
+</li>
+<li><p>flexible way. For example, some algorithms for traversing</p>
+</li>
+<li><p>concurrently accessed data structures require the use of</p>
+</li>
+<li><p>&quot;hand-over-hand&quot; or &quot;chain locking&quot;: you</p>
+</li>
+<li><p>acquire the lock of node A, then node B, then release A and acquire</p>
+</li>
+<li><p>C, then release B and acquire D and so on.  Implementations of the</p>
+</li>
+<li><p>{@code Lock} interface enable the use of such techniques by</p>
+</li>
+<li><p>allowing a lock to be acquired and released in different scopes,</p>
+</li>
+<li><p>and allowing multiple locks to be acquired and released in any</p>
+</li>
+<li><p>order.</p>
+</li>
+<li></li>
+<li><p>With this increased flexibility comes additional</li>
+<li><p>responsibility. The absence of block-structured locking removes the</p>
+</li>
+<li><p>automatic release of locks that occurs with {@code synchronized}</p>
+</li>
+<li><p>methods and statements. In most cases, the following idiom</p>
+</li>
+<li><p>should be used:</p>
+</li>
+<li></li>
+<li><pre> {@code</li>
+<li><p>Lock l = …;</p>
+</li>
+<li><p>l.lock();</p>
+</li>
+<li><p>try {</p>
+</li>
+<li><p>  // access the resource protected by this lock</p>
+</li>
+<li><p>} finally {</p>
+</li>
+<li><p>  l.unlock();</p>
+</li>
+<li><p>}}</pre></p>
+</li>
+<li></li>
+<li><p>When locking and unlocking occur in different scopes, care must be</p>
+</li>
+<li><p>taken to ensure that all code that is executed while the lock is</p>
+</li>
+<li><p>held is protected by try-finally or try-catch to ensure that the</p>
+</li>
+<li><p>lock is released when necessary.</p>
+</li>
+<li></li>
+<li><p>{@code Lock} implementations provide additional functionality</li>
+<li><p>over the use of {@code synchronized} methods and statements by</p>
+</li>
+<li><p>providing a non-blocking attempt to acquire a lock ({@link</p>
+</li>
+<li><p>#tryLock()}), an attempt to acquire the lock that can be</p>
+</li>
+<li><p>interrupted ({@link #lockInterruptibly}, and an attempt to acquire</p>
+</li>
+<li><p>the lock that can timeout ({@link #tryLock(long, TimeUnit)}).</p>
+</li>
+<li></li>
+<li><p>A {@code Lock} class can also provide behavior and semantics</li>
+<li><p>that is quite different from that of the implicit monitor lock,</p>
+</li>
+<li><p>such as guaranteed ordering, non-reentrant usage, or deadlock</p>
+</li>
+<li><p>detection. If an implementation provides such specialized semantics</p>
+</li>
+<li><p>then the implementation must document those semantics.</p>
+</li>
+<li></li>
+<li><p>Note that {@code Lock} instances are just normal objects and can</li>
+<li><p>themselves be used as the target in a {@code synchronized} statement.</p>
+</li>
+<li><p>Acquiring the</p>
+</li>
+<li><p>monitor lock of a {@code Lock} instance has no specified relationship</p>
+</li>
+<li><p>with invoking any of the {@link #lock} methods of that instance.</p>
+</li>
+<li><p>It is recommended that to avoid confusion you never use {@code Lock}</p>
+</li>
+<li><p>instances in this way, except within their own implementation.</p>
+</li>
+<li></li>
+<li><p>Except where noted, passing a {@code null} value for any</li>
+<li><p>parameter will result in a {@link NullPointerException} being</p>
+</li>
+<li><p>thrown.</p>
+</li>
+<li></li>
+<li><h3>Memory Synchronization</h3></li>
+<li></li>
+<li><p>All {@code Lock} implementations <em>must</em> enforce the same</li>
+<li><p>memory synchronization semantics as provided by the built-in monitor</p>
+</li>
+<li><p>lock, as described in</p>
+</li>
+<li><a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.4"></li>
+<li><p>Chapter 17 of</p>
+</li>
+<li><p><cite>The Java&trade; Language Specification</cite></a>:</p>
+</li>
+<li><ul></li>
+<li><li>A successful {@code lock} operation has the same memory</li>
+<li><p>synchronization effects as a successful <em>Lock</em> action.</p>
+</li>
+<li><li>A successful {@code unlock} operation has the same</li>
+<li><p>memory synchronization effects as a successful <em>Unlock</em> action.</p>
+</li>
+<li></ul></li>
+<li></li>
+<li><p>Unsuccessful locking and unlocking operations, and reentrant</p>
+</li>
+<li><p>locking/unlocking operations, do not require any memory</p>
+</li>
+<li><p>synchronization effects.</p>
+</li>
+<li></li>
+<li><h3>Implementation Considerations</h3></li>
+<li></li>
+<li><p>The three forms of lock acquisition (interruptible,</li>
+<li><p>non-interruptible, and timed) may differ in their performance</p>
+</li>
+<li><p>characteristics, ordering guarantees, or other implementation</p>
+</li>
+<li><p>qualities.  Further, the ability to interrupt the <em>ongoing</em></p>
+</li>
+<li><p>acquisition of a lock may not be available in a given {@code Lock}</p>
+</li>
+<li><p>class.  Consequently, an implementation is not required to define</p>
+</li>
+<li><p>exactly the same guarantees or semantics for all three forms of</p>
+</li>
+<li><p>lock acquisition, nor is it required to support interruption of an</p>
+</li>
+<li><p>ongoing lock acquisition.  An implementation is required to clearly</p>
+</li>
+<li><p>document the semantics and guarantees provided by each of the</p>
+</li>
+<li><p>locking methods. It must also obey the interruption semantics as</p>
+</li>
+<li><p>defined in this interface, to the extent that interruption of lock</p>
+</li>
+<li><p>acquisition is supported: which is either totally, or only on</p>
+</li>
+<li><p>method entry.</p>
+</li>
+<li></li>
+<li><p>As interruption generally implies cancellation, and checks for</li>
+<li><p>interruption are often infrequent, an implementation can favor responding</p>
+</li>
+<li><p>to an interrupt over normal method return. This is true even if it can be</p>
+</li>
+<li><p>shown that the interrupt occurred after another action may have unblocked</p>
+</li>
+<li><p>the thread. An implementation should document this behavior.</p>
+</li>
+<li></li>
+<li><p>@see ReentrantLock</p>
+</li>
+<li><p>@see Condition</p>
+</li>
+<li><p>@see ReadWriteLock</p>
+</li>
+<li></li>
+<li><p>@since 1.5</p>
+</li>
+<li><p>@author Doug Lea</p>
+</li>
+<li><p>/<br>public interface Lock {</p>
+<p>  /**</p>
+<ul>
+<li>Acquires the lock.</li>
+<li></li>
+<li><p>If the lock is not available then the current thread becomes</li>
+<li>disabled for thread scheduling purposes and lies dormant until the</li>
+<li>lock has been acquired.</li>
+<li></li>
+<li><p><b>Implementation Considerations</b></li>
+<li></li>
+<li><p>A {@code Lock} implementation may be able to detect erroneous use</li>
+<li>of the lock, such as an invocation that would cause deadlock, and</li>
+<li>may throw an (unchecked) exception in such circumstances.  The</li>
+<li>circumstances and the exception type must be documented by that</li>
+<li>{@code Lock} implementation.</li>
+<li>/<br>void lock();</li>
+</ul>
+<p>  /**</p>
+<ul>
+<li>Acquires the lock unless the current thread is</li>
+<li>{@linkplain Thread#interrupt interrupted}.</li>
+<li></li>
+<li><p>Acquires the lock if it is available and returns immediately.</li>
+<li></li>
+<li><p>If the lock is not available then the current thread becomes</li>
+<li>disabled for thread scheduling purposes and lies dormant until</li>
+<li>one of two things happens:</li>
+<li></li>
+<li><ul></li>
+<li><li>The lock is acquired by the current thread; or</li>
+<li><li>Some other thread {@linkplain Thread#interrupt interrupts} the</li>
+<li>current thread, and interruption of lock acquisition is supported.</li>
+<li></ul></li>
+<li></li>
+<li><p>If the current thread:</li>
+<li><ul></li>
+<li><li>has its interrupted status set on entry to this method; or</li>
+<li><li>is {@linkplain Thread#interrupt interrupted} while acquiring the</li>
+<li>lock, and interruption of lock acquisition is supported,</li>
+<li></ul></li>
+<li>then {@link InterruptedException} is thrown and the current thread’s</li>
+<li>interrupted status is cleared.</li>
+<li></li>
+<li><p><b>Implementation Considerations</b></li>
+<li></li>
+<li><p>The ability to interrupt a lock acquisition in some</li>
+<li>implementations may not be possible, and if possible may be an</li>
+<li>expensive operation.  The programmer should be aware that this</li>
+<li>may be the case. An implementation should document when this is</li>
+<li>the case.</li>
+<li></li>
+<li><p>An implementation can favor responding to an interrupt over</li>
+<li>normal method return.</li>
+<li></li>
+<li><p>A {@code Lock} implementation may be able to detect</li>
+<li>erroneous use of the lock, such as an invocation that would</li>
+<li>cause deadlock, and may throw an (unchecked) exception in such</li>
+<li>circumstances.  The circumstances and the exception type must</li>
+<li>be documented by that {@code Lock} implementation.</li>
+<li></li>
+<li>@throws InterruptedException if the current thread is</li>
+<li><pre><code>    interrupted while acquiring the lock (and interruption
+</code></pre>
+</li>
+<li><pre><code>    of lock acquisition is supported)
+</code></pre>
+</li>
+<li>/<br>void lockInterruptibly() throws InterruptedException;</li>
+</ul>
+<p>  /**</p>
+<ul>
+<li>Acquires the lock only if it is free at the time of invocation.</li>
+<li></li>
+<li><p>Acquires the lock if it is available and returns immediately</li>
+<li>with the value {@code true}.</li>
+<li>If the lock is not available then this method will return</li>
+<li>immediately with the value {@code false}.</li>
+<li></li>
+<li><p>A typical usage idiom for this method would be:</li>
+<li><pre> {@code</li>
+<li>Lock lock = …;</li>
+<li>if (lock.tryLock()) {</li>
+<li>  try {</li>
+<li><pre><code>// manipulate protected state
+</code></pre>
+</li>
+<li>  } finally {</li>
+<li><pre><code>lock.unlock();
+</code></pre>
+</li>
+<li>  }</li>
+<li>} else {</li>
+<li>  // perform alternative actions</li>
+<li>}}</pre></li>
+<li></li>
+<li>This usage ensures that the lock is unlocked if it was acquired, and</li>
+<li>doesn’t try to unlock if the lock was not acquired.</li>
+<li></li>
+<li>@return {@code true} if the lock was acquired and</li>
+<li><pre><code>    &#123;@code false&#125; otherwise
+</code></pre>
+</li>
+<li>/<br>boolean tryLock();</li>
+</ul>
+<p>  /**</p>
+<ul>
+<li>Acquires the lock if it is free within the given waiting time and the</li>
+<li>current thread has not been {@linkplain Thread#interrupt interrupted}.</li>
+<li></li>
+<li><p>If the lock is available this method returns immediately</li>
+<li>with the value {@code true}.</li>
+<li>If the lock is not available then</li>
+<li>the current thread becomes disabled for thread scheduling</li>
+<li>purposes and lies dormant until one of three things happens:</li>
+<li><ul></li>
+<li><li>The lock is acquired by the current thread; or</li>
+<li><li>Some other thread {@linkplain Thread#interrupt interrupts} the</li>
+<li>current thread, and interruption of lock acquisition is supported; or</li>
+<li><li>The specified waiting time elapses</li>
+<li></ul></li>
+<li></li>
+<li><p>If the lock is acquired then the value {@code true} is returned.</li>
+<li></li>
+<li><p>If the current thread:</li>
+<li><ul></li>
+<li><li>has its interrupted status set on entry to this method; or</li>
+<li><li>is {@linkplain Thread#interrupt interrupted} while acquiring</li>
+<li>the lock, and interruption of lock acquisition is supported,</li>
+<li></ul></li>
+<li>then {@link InterruptedException} is thrown and the current thread’s</li>
+<li>interrupted status is cleared.</li>
+<li></li>
+<li><p>If the specified waiting time elapses then the value {@code false}</li>
+<li>is returned.</li>
+<li>If the time is</li>
+<li>less than or equal to zero, the method will not wait at all.</li>
+<li></li>
+<li><p><b>Implementation Considerations</b></li>
+<li></li>
+<li><p>The ability to interrupt a lock acquisition in some implementations</li>
+<li>may not be possible, and if possible may</li>
+<li>be an expensive operation.</li>
+<li>The programmer should be aware that this may be the case. An</li>
+<li>implementation should document when this is the case.</li>
+<li></li>
+<li><p>An implementation can favor responding to an interrupt over normal</li>
+<li>method return, or reporting a timeout.</li>
+<li></li>
+<li><p>A {@code Lock} implementation may be able to detect</li>
+<li>erroneous use of the lock, such as an invocation that would cause</li>
+<li>deadlock, and may throw an (unchecked) exception in such circumstances.</li>
+<li>The circumstances and the exception type must be documented by that</li>
+<li>{@code Lock} implementation.</li>
+<li></li>
+<li>@param time the maximum time to wait for the lock</li>
+<li>@param unit the time unit of the {@code time} argument</li>
+<li>@return {@code true} if the lock was acquired and {@code false}</li>
+<li><pre><code>    if the waiting time elapsed before the lock was acquired
+</code></pre>
+</li>
+<li></li>
+<li>@throws InterruptedException if the current thread is interrupted</li>
+<li><pre><code>    while acquiring the lock (and interruption of lock
+</code></pre>
+</li>
+<li><pre><code>    acquisition is supported)
+</code></pre>
+</li>
+<li>/<br>boolean tryLock(long time, TimeUnit unit) throws InterruptedException;</li>
+</ul>
+<p>  /**</p>
+<ul>
+<li>Releases the lock.</li>
+<li></li>
+<li><p><b>Implementation Considerations</b></li>
+<li></li>
+<li><p>A {@code Lock} implementation will usually impose</li>
+<li>restrictions on which thread can release a lock (typically only the</li>
+<li>holder of the lock can release it) and may throw</li>
+<li>an (unchecked) exception if the restriction is violated.</li>
+<li>Any restrictions and the exception</li>
+<li>type must be documented by that {@code Lock} implementation.</li>
+<li>/<br>void unlock();</li>
+</ul>
+<p>  /**</p>
+<ul>
+<li>Returns a new {@link Condition} instance that is bound to this</li>
+<li>{@code Lock} instance.</li>
+<li></li>
+<li><p>Before waiting on the condition the lock must be held by the</li>
+<li>current thread.</li>
+<li>A call to {@link Condition#await()} will atomically release the lock</li>
+<li>before waiting and re-acquire the lock before the wait returns.</li>
+<li></li>
+<li><p><b>Implementation Considerations</b></li>
+<li></li>
+<li><p>The exact operation of the {@link Condition} instance depends on</li>
+<li>the {@code Lock} implementation and must be documented by that</li>
+<li>implementation.</li>
+<li></li>
+<li>@return A new {@link Condition} instance for this {@code Lock} instance</li>
+<li>@throws UnsupportedOperationException if this {@code Lock}</li>
+<li><pre><code>    implementation does not support conditions
+</code></pre>
+</li>
+<li>/<br>Condition newCondition();<br>}</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>显示的获取锁和释放锁</p>
+</li>
+<li><p>可中断的获取锁</p>
+</li>
+<li><p>可超时的获取锁</p>
+</li>
+<li><p>基本API</p>
+<p>  - </p>
+</li>
+</ul>
+<h3 id="队列同步器AbstractQueueSynchronizer"><a href="#队列同步器AbstractQueueSynchronizer" class="headerlink" title="队列同步器AbstractQueueSynchronizer"></a>队列同步器AbstractQueueSynchronizer</h3><ul>
+<li><p>获取状态的方法</p>
+<ul>
+<li>getState</li>
+<li>SetState</li>
+<li>CompareAndSet</li>
+</ul>
+</li>
+<li><p>需要重写的方法</p>
+<p>  - </p>
+</li>
+<li><p>提供的模板方法</p>
+<p>  - </p>
+</li>
+<li><p>同步队列</p>
+<ul>
+<li>Node</li>
+<li>FIFO的双向队列，只有他的前驱节点为头节点才有资格去尝试获取锁，如果获取到之后，将自己设置为头节点，然后将原头节点的next指针设置为空。</li>
+</ul>
+</li>
+<li><p>独占式获取锁</p>
+<p>public final void acquire(int arg) {</p>
+<pre><code>if (!tryAcquire(arg) &amp;&amp;
+    acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+    selfInterrupt();
+</code></pre>
+<p>}<br>将节点添加进同步队列<br>private Node addWaiter(Node mode) {</p>
+<pre><code>Node node = new Node(mode);
+
+for (;;) &#123;
+    Node oldTail = tail;
+    if (oldTail != null) &#123;
+        node.setPrevRelaxed(oldTail);
+        if (compareAndSetTail(oldTail, node)) &#123;
+            oldTail.next = node;
+            return node;
+        &#125;
+    &#125; else &#123;
+        initializeSyncQueue();
+    &#125;
+&#125;
+</code></pre>
+<p>}<br>在队列中的节点不断的获取锁<br>final boolean acquireQueued(final Node node, int arg) {</p>
+<pre><code>boolean interrupted = false;
+try &#123;
+    for (;;) &#123;
+        // 获取前驱节点
+        final Node p = node.predecessor();
+        if (p == head &amp;&amp; tryAcquire(arg)) &#123;
+            setHead(node);
+            p.next = null; // help GC
+            return interrupted;
+        &#125;
+        if (shouldParkAfterFailedAcquire(p, node))
+            interrupted |= parkAndCheckInterrupt();
+    &#125;
+&#125; catch (Throwable t) &#123;
+    cancelAcquire(node);
+    if (interrupted)
+        selfInterrupt();
+    throw t;
+&#125;
+</code></pre>
+<p>}</p>
+</li>
+<li><p>独占式释放锁</p>
+<p>public final boolean release(int arg) {</p>
+<pre><code>if (tryRelease(arg)) &#123;
+    Node h = head;
+    if (h != null &amp;&amp; h.waitStatus != 0)
+        unparkSuccessor(h);
+    return true;
+&#125;
+return false;
+</code></pre>
+<p>}</p>
+<p>private void unparkSuccessor(Node node) {</p>
+<pre><code>/*
+ * If status is negative (i.e., possibly needing signal) try
+ * to clear in anticipation of signalling.  It is OK if this
+ * fails or if status is changed by waiting thread.
+ */
+int ws = node.waitStatus;
+if (ws &lt; 0)
+    node.compareAndSetWaitStatus(ws, 0);
+
+/*
+ * Thread to unpark is held in successor, which is normally
+ * just the next node.  But if cancelled or apparently null,
+ * traverse backwards from tail to find the actual
+ * non-cancelled successor.
+ */
+Node s = node.next;
+if (s == null || s.waitStatus &gt; 0) &#123;
+    s = null;
+    //倒序遍历，找到最先的一个waitStatus小于等于0的node
+    for (Node p = tail; p != node &amp;&amp; p != null; p = p.prev)
+        if (p.waitStatus &lt;= 0)
+            s = p;
+&#125;
+if (s != null)
+    LockSupport.unpark(s.thread);
+</code></pre>
+<p>}<br>为什么需要倒序遍历寻找？</p>
+<pre><code>   因为addWaiter时的操作并不是原子操作，可能出现前置指针好了，但是后指针没有指成功。并且canceled也是将后指针指向了自己，所以倒序遍历寻找最好
+</code></pre>
+</li>
+</ul>
+<h3 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h3><ul>
+<li><p>可重入锁</p>
+</li>
+<li><p>公平和非公平锁</p>
+<p>ReentrantLock 分为公平锁和非公平锁，可以通过构造方法来指定具体类型：</p>
+<p>public ReentrantLock() {</p>
+<pre><code>sync = new NonfairSync();
+</code></pre>
+<p>}</p>
+<p>public ReentrantLock(boolean fair) {</p>
+<pre><code>sync = fair ? new FairSync() : new NonfairSync();
+</code></pre>
+<p>}<br>默认一般使用非公平锁，它的效率和吞吐量都比公平锁高的多(后面会分析具体原因)。</p>
+</li>
+</ul>
+<h3 id="ReentrantReadWriteLock"><a href="#ReentrantReadWriteLock" class="headerlink" title="ReentrantReadWriteLock"></a>ReentrantReadWriteLock</h3><ul>
+<li></li>
+<li><p>同步状态</p>
+<ul>
+<li>前16位标识读，后16位标识写</li>
+</ul>
+</li>
+<li><p>锁降级</p>
+</li>
+</ul>
+<h3 id="LockSupport类"><a href="#LockSupport类" class="headerlink" title="LockSupport类"></a>LockSupport类</h3><ul>
+<li></li>
+</ul>
+<h3 id="Condition接口"><a href="#Condition接口" class="headerlink" title="Condition接口"></a>Condition接口</h3><ul>
+<li>类似于Object对象的wait/notify方法</li>
+<li></li>
+<li></li>
+</ul>
+<h3 id="ConditionObject"><a href="#ConditionObject" class="headerlink" title="ConditionObject"></a>ConditionObject</h3><ul>
+<li><p>是aqs下的一个内部类</p>
+</li>
+<li><p>等待队列</p>
+<ul>
+<li>FIFO的队列</li>
+<li></li>
+</ul>
+</li>
+<li><p>同步队列入等待队列</p>
+<p>  - </p>
+</li>
+<li><p>从等待队列移入同步队列</p>
+<p>  - </p>
+</li>
+</ul>
+<h2 id="并发容器"><a href="#并发容器" class="headerlink" title="并发容器"></a>并发容器</h2><h3 id="ConcurrentHashMap"><a href="#ConcurrentHashMap" class="headerlink" title="ConcurrentHashMap"></a>ConcurrentHashMap</h3><ul>
+<li><p>jdk1.7</p>
+<ul>
+<li>segment数组加上entry数组，segment实现的时ReentrantLock，来实现分段锁</li>
+</ul>
+</li>
+<li><p>jdk1.8</p>
+<ul>
+<li><p>Node</p>
+<p>static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {</p>
+<pre><code>final int hash;
+final K key;
+volatile V val;
+volatile Node&lt;K,V&gt; next;
+</code></pre>
+</li>
+<li><p>put</p>
+<p>public V put(K key, V value) {</p>
+<pre><code>return putVal(key, value, false);
+</code></pre>
+<p>}</p>
+<p>final V putVal(K key, V value, boolean onlyIfAbsent) {</p>
+<pre><code>// key value都不能为空
+if (key == null || value == null) throw new NullPointerException();
+int hash = spread(key.hashCode());
+int binCount = 0;
+for (Node&lt;K,V&gt;[] tab = table;;) &#123;
+    Node&lt;K,V&gt; f; int n, i, fh; K fk; V fv;
+    if (tab == null || (n = tab.length) == 0)
+        // 第一次插入的时候初始化
+        tab = initTable();
+     // 如果这个node没有值的话，直接插入进去
+    else if ((f = tabAt(tab, i = (n - 1) &amp; hash)) == null) &#123;
+        if (casTabAt(tab, i, null, new Node&lt;K,V&gt;(hash, key, value)))
+            break;                   // no lock when adding to empty bin
+    &#125;
+    // hash位moved说明它正在扩容，然后去帮助扩容
+    else if ((fh = f.hash) == MOVED)
+        tab = helpTransfer(tab, f);
+    else if (onlyIfAbsent // check first node without acquiring lock
+             &amp;&amp; fh == hash
+             &amp;&amp; ((fk = f.key) == key || (fk != null &amp;&amp; key.equals(fk)))
+             &amp;&amp; (fv = f.val) != null)
+        return fv;
+    else &#123;
+        V oldVal = null;
+        synchronized (f) &#123;
+            if (tabAt(tab, i) == f) &#123;
+                if (fh &gt;= 0) &#123;
+                    binCount = 1;
+                    for (Node&lt;K,V&gt; e = f;; ++binCount) &#123;
+                        K ek;
+                        if (e.hash == hash &amp;&amp;
+                            ((ek = e.key) == key ||
+                             (ek != null &amp;&amp; key.equals(ek)))) &#123;
+                            oldVal = e.val;
+                            if (!onlyIfAbsent)
+                                e.val = value;
+                            break;
+                        &#125;
+                        Node&lt;K,V&gt; pred = e;
+                        if ((e = e.next) == null) &#123;
+                            pred.next = new Node&lt;K,V&gt;(hash, key, value);
+                            break;
+                        &#125;
+                    &#125;
+                &#125;
+                else if (f instanceof TreeBin) &#123;
+                    Node&lt;K,V&gt; p;
+                    binCount = 2;
+                    if ((p = ((TreeBin&lt;K,V&gt;)f).putTreeVal(hash, key,
+                                                   value)) != null) &#123;
+                        oldVal = p.val;
+                        if (!onlyIfAbsent)
+                            p.val = value;
+                    &#125;
+                &#125;
+                else if (f instanceof ReservationNode)
+                    throw new IllegalStateException(&quot;Recursive update&quot;);
+            &#125;
+        &#125;
+        if (binCount != 0) &#123;
+            if (binCount &gt;= TREEIFY_THRESHOLD)
+                treeifyBin(tab, i);
+            if (oldVal != null)
+                return oldVal;
+            break;
+        &#125;
+    &#125;
+&#125;
+addCount(1L, binCount);
+return null;
+</code></pre>
+<p>}</p>
+<p>//初始化数组</p>
+<p>private final Node&lt;K,V&gt;[] initTable() {</p>
+<pre><code>Node&lt;K,V&gt;[] tab; int sc;
+while ((tab = table) == null || tab.length == 0) &#123;
+    // 说明有数组正在初始化
+    if ((sc = sizeCtl) &lt; 0)
+        Thread.yield(); // lost initialization race; just spin
+    else if (U.compareAndSetInt(this, SIZECTL, sc, -1)) &#123;
+        try &#123;
+            if ((tab = table) == null || tab.length == 0) &#123;
+                int n = (sc &gt; 0) ? sc : DEFAULT_CAPACITY;
+                @SuppressWarnings(&quot;unchecked&quot;)
+                Node&lt;K,V&gt;[] nt = (Node&lt;K,V&gt;[])new Node&lt;?,?&gt;[n];
+                table = tab = nt;
+                sc = n - (n &gt;&gt;&gt; 2);
+            &#125;
+        &#125; finally &#123;
+            sizeCtl = sc;
+        &#125;
+        break;
+    &#125;
+&#125;
+return tab;
+</code></pre>
+<p>}</p>
+</li>
+</ul>
+</li>
+<li><p>get</p>
+<ul>
+<li>扩容</li>
+</ul>
+<p>扩容有两个时机进行扩容，一个是某个node的长度大于等于8的时候，他就会调用treeIfyBin方法去尝试是否可以树化，这个方法首先会判断node数组的长度，如果小于64，则考虑先将数组扩容。tryPreSize方法进行扩容。这个方法里面则会调用transfer方法来进行扩容，transfer方法负责迁移node节点，他有一个transferIndex指针，最开始时这个指针指向数组最右端，通过这个指针和每次每个线程需要迁移的node数，迁移的node数最少为16，然后将index指针cas修改掉，并且将已经迁移好的node节点变为forwardingNode，如果这个时候有线程访问，如果这个线程是去put或者remove方法，那么他会调用helptransfer方法来帮助扩容。如果进去方法后发现index指针为0或者扩容线程已经到最大的线程数，则直接返回。如果时get则会去调用forwardingIndex中的find方法访问新的node数组中对应的值。</p>
+<ul>
+<li>cas加上syncronized</li>
+</ul>
+</li>
+</ul>
+<h3 id="CopyOnWriteArrayList"><a href="#CopyOnWriteArrayList" class="headerlink" title="CopyOnWriteArrayList"></a>CopyOnWriteArrayList</h3><ul>
+<li>所有对数组有修改的操作都在新数组在进行，也就是用空间换时间。</li>
+<li>它重写了一个COWIterator内部类，内部迭代的可能只是一个快照而已。</li>
+</ul>
+<h3 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h3><ul>
+<li>每一个Thread里面都有一个threadlocals对象，这个对象的类型是ThreadLocal.ThreadLocalMap类型的对象，ThreadLocalMap内部是一个Entry数组，而Entry是ThreadLocalMap的一个静态内部类，它继承了WeakReference&lt;ThreadLocal&lt;?&gt;&gt;类型，Entry增加了一个内部属性value。因为线程和ThreadLocal之间的引用是弱引用，所以当线程使用完成后gc时就会自动回收这个对象，避免内存泄漏。</li>
+<li>get</li>
+<li>set</li>
+<li>remove</li>
+</ul>
+<h3 id="CountDownLatch"><a href="#CountDownLatch" class="headerlink" title="CountDownLatch"></a>CountDownLatch</h3><ul>
+<li>倒数计数器，构造方法传入一个整型值，主线程通过await方法阻塞，直到活动线程多次调用countdown方法将state的状态减为0时主线程结束休眠。底层使用的是aqs的共享锁。当state不为0时，表示都可以获取共享锁。await可以多个线程调用，然后都被阻塞到同步队列中。countdown一个线程也可以调用多次</li>
+</ul>
+<h3 id="CyclicBarrier"><a href="#CyclicBarrier" class="headerlink" title="CyclicBarrier"></a>CyclicBarrier</h3><ul>
+<li>可以循环使用的障碍，创建此对象时可以传入一个整形值和一个Runable对象，代表在这个障碍前需要多少个线程到达，也就是需要被调用多少次await方法的线程等待在这个障碍前。内部使用的是非公平的ReentrantLock</li>
+</ul>
+<h3 id="Exchanger"><a href="#Exchanger" class="headerlink" title="Exchanger"></a>Exchanger</h3><ul>
+<li>用于两个线程间交互信息，当线程调用exchange方法后阻塞，直到另一个线程调用exchange方法</li>
+</ul>
+<h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><ul>
+<li>是一种基于池化思想管理线程的工具</li>
+</ul>
+<h3 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h3><ul>
+<li>降低资源消耗：通过池化技术重复利用已创建的线程，降低线程创建和销毁造成的损耗。</li>
+<li>提高响应速度：任务到达时，无需等待线程创建即可立即执行。</li>
+<li>提高线程的可管理性：线程是稀缺资源，如果无限制创建，不仅会消耗系统资源，还会因为线程的不合理分布导致资源调度失衡，降低系统的稳定性。使用线程池可以进行统一的分配、调优和监控。</li>
+<li>提供更多更强大的功能：线程池具备可拓展性，允许开发人员向其中增加更多的功能。比如延时定时线程池ScheduledThreadPoolExecutor，就允许任务延期执行或定期执行。</li>
+</ul>
+<h3 id="总体设计"><a href="#总体设计" class="headerlink" title="总体设计"></a>总体设计</h3><ul>
+<li></li>
+<li></li>
+</ul>
+<h3 id="生命周期管理"><a href="#生命周期管理" class="headerlink" title="生命周期管理"></a>生命周期管理</h3><ul>
+<li><p>ctl属性</p>
+<ul>
+<li>workercounter</li>
+<li>runstate</li>
+<li></li>
+</ul>
+</li>
+<li><p>线程池状态转换</p>
+<ul>
+<li></li>
+<li></li>
+</ul>
+</li>
+</ul>
+<h3 id="任务调度"><a href="#任务调度" class="headerlink" title="任务调度"></a>任务调度</h3><h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3>]]></content>
+      <tags>
+        <tag>Java</tag>
+        <tag>并发</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JVM</title>
+    <url>/2021/03/27/JVM/</url>
+    <content><![CDATA[<h1 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h1><h2 id="基于栈的指令集架构和基于寄存器的指令集架构"><a href="#基于栈的指令集架构和基于寄存器的指令集架构" class="headerlink" title="基于栈的指令集架构和基于寄存器的指令集架构"></a>基于栈的指令集架构和基于寄存器的指令集架构</h2><h3 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h3><ul>
+<li>同样操作指令更多，因为有许多入栈出栈操作指令，但是指令一般不带参数。并且由于栈在内存中，肯定比不上寄存器的访问速度。</li>
+</ul>
+<h2 id="空间分布"><a href="#空间分布" class="headerlink" title="空间分布"></a>空间分布</h2><h3 id="线程公有"><a href="#线程公有" class="headerlink" title="线程公有"></a>线程公有</h3><ul>
+<li><p>堆</p>
+</li>
+<li><p>方法区</p>
+<ul>
+<li><p>在HotSpot虚拟机上，1.7之前一般就默认称为永久代，因为HotSpot虚拟机将这块内存一起纳入了垃圾回收机制的范围，但是由于JVM内存有总量限制，所以在1.7开始就逐渐把原本属于永久代的东西移到本地内存，但是1.7中常量池，静态变量等还是在方法区，1.8后移入堆中，永久代彻底消失。</p>
+</li>
+<li><p>运行时常量池</p>
+<ul>
+<li>主要用来存放编译期生成的各种字面量和符号引用。但是也可以存放在运行期添加进入的，由于他在方法区，所以仍然可能产生OOM。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="线程私有"><a href="#线程私有" class="headerlink" title="线程私有"></a>线程私有</h3><ul>
+<li><p>程序计数器</p>
+</li>
+<li><p>虚拟机栈</p>
+<ul>
+<li><p>每个方法被执行的时候，都会自动创建一个栈帧，其中包括局部变量表，操作数栈，动态连接，方法出口等等。</p>
+</li>
+<li><p>局部变量表</p>
+<ul>
+<li><p>局部变量槽Slot</p>
+<ul>
+<li>long</li>
+<li>double占两个</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>异常</p>
+<ul>
+<li><p>StackOverFlowError </p>
+<ul>
+<li>申请栈帧的数量超过虚拟机允许的最大深度</li>
+</ul>
+</li>
+<li><p>OutOfMemoryError</p>
+<ul>
+<li>总栈帧占的地址空间大于最大的栈空间，由于HotSpot虚拟机不支持栈容量动态扩展，所以发生OOM只可能在新建线程给线程分配堆缓冲池时TLAB。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>-Xss</p>
+</li>
+</ul>
+</li>
+<li><p>本地方法栈</p>
+<ul>
+<li><p>异常</p>
+<ul>
+<li><p>StackOverFlowError </p>
+<ul>
+<li>申请栈帧的数量超过虚拟机允许的最大深度</li>
+</ul>
+</li>
+<li><p>OutOfMemoryError</p>
+<ul>
+<li>总栈帧占的地址空间大于最大的栈空间</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h3><ul>
+<li>DirectByteBuffer </li>
+<li>由于主机内存有限制，所以也可能产生OOM</li>
+</ul>
+<h2 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h2><h3 id="哪些对象需要回收？已经“死”去的对象"><a href="#哪些对象需要回收？已经“死”去的对象" class="headerlink" title="哪些对象需要回收？已经“死”去的对象"></a>哪些对象需要回收？已经“死”去的对象</h3><ul>
+<li><p>引用计数法（可能造成循环引用）</p>
+</li>
+<li><p>可达性分析</p>
+<ul>
+<li><p>GC Roots</p>
+<ul>
+<li>虚拟机栈中引用的对象</li>
+<li>方法区中类静态属性的引用</li>
+<li>方法区中常量引用</li>
+<li>synchronized持有的对象</li>
+<li>临时的对象</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>引用</p>
+<ul>
+<li><p>四种引用类型</p>
+<ul>
+<li><p>强引用</p>
+<ul>
+<li>new 出来的都是强引用，如果一个对象被强引用引用，当内存不够时，jvm宁愿爆出oom，也不愿意将拥有强引用引用的对象回收。</li>
+</ul>
+</li>
+<li><p>软引用 （SoftReference）</p>
+<ul>
+<li>软引用是引用强度上仅次于强引用的，他的类是public，只有强引用的类是仅包内可见的。软引用的对象在jvm内存资源充足的时候不会被回收，但是内存资源紧张的时候会被回收。一般可以用来作为缓存区的引用。</li>
+</ul>
+</li>
+<li><p>弱引用（WeakReference）</p>
+<ul>
+<li>弱引用是最弱的一种可以直接取到链接对象值的一个引用，在gc时，jvm碰到弱引用则直接回收。有一个用在内存敏感的WeakHashMap就是用的WeakReference，它通过监控ReferenceQueue来完成Entry的清洗。</li>
+</ul>
+</li>
+<li><p>虚引用/幽灵引用（PhantomReference）</p>
+<ul>
+<li>最弱的引用，不能直接访问到对象，一般可以用来通知某个对象是否被回收。他有一个子类，Cleaner，用来负责对DirectByteBuffer的回收，创建DirectByteBuffer对象时会创建一个Cleaner对象，Cleaner对象持有了DirectByteBuffer对象的引用。当JVM在GC时，如果发现DirectByteBuffer被地方法没被引用啦，JVM会将其对应的Cleaner加入到pending-reference链表中，同时通知ReferenceHandler线程处理，ReferenceHandler收到通知后，会调用Cleaner#clean方法，而对于DirectByteBuffer创建的Cleaner对象其clean方法内部会调用unsafe.freeMemory释放堆外内存。最终达到了DirectByteBuffer对象被GC回收其对应的堆外内存也被回收的目的。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>类卸载</p>
+<ul>
+<li><ol>
+<li>该类没有任何实例</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>加载该类的类加载器已经被回收</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>Class类没有在任何地方被引用</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>可达性分析之后如果被标记为不可达，此时将对对象进行第一次标记，然后判断对象是否有必要执行finalize方法，如果有必要，则将其加入F-Queue队列，这个队列将由一个jvm自动建立的低优先级的线程去执行他们的finalize方法，这里说的执行是虚拟机会保证他执行，但是不保证他执行完，因为有可能这里执行缓慢或者死循环。然后将会对这里的对象进行第二次小规模的标记，如果有可以被连接上的，则将其移除这个即将被回收的集合</p>
+</li>
+</ul>
+<h3 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h3><ul>
+<li><p>分代收集理论</p>
+<ul>
+<li><p>弱分代假说</p>
+<ul>
+<li>大部分对象都是朝生夕灭</li>
+</ul>
+</li>
+<li><p>强分代假说</p>
+<ul>
+<li>熬过越多次垃圾回收就越难消亡</li>
+</ul>
+</li>
+<li><p>跨代引用假说</p>
+<ul>
+<li><p>跨代引用相对于同代引用来说终究是少数</p>
+</li>
+<li><p>记忆集</p>
+<ul>
+<li>新生代上建立一个数据结构，将老年代分为一块一块的，他指明老年代的哪些块有跨代引用。这个需要每次改变引用时都维护这个数据集的正确性，但是相比于gc时扫描全部老年代来说划算的多</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>垃圾回收算法</p>
+<ul>
+<li><p>标记清除算法</p>
+<p>标记存活的或者死亡的，然后清除。<br>缺点： 执行效率不稳定，内存空间的碎片化</p>
+</li>
+</ul>
+</li>
+<li><p>标记-复制算法</p>
+<p>将空间分为两块或以上，标记存活的对象，然后将存活的对象整体移动到另外一块内存上，这样分配内存的时候就只需要移动指针就可以了。</p>
+<pre><code>HotSpot的Serial，ParNew等新生代回收器都采用了这种。他们的内存划分为三块，一块较大的Eden（80%），两块小的survivor（10%一块），每次只使用一块Eden和一块survivor。
+分配担保: 
+       假如10%的区域不够，则分配到老年代，由老年代进行分配担保。
+</code></pre>
+<ul>
+<li><p>标记-整理算法</p>
+<p>标记存活的，然后将其移动到一起。防止内存碎片化。<br>因为需要移动对象，所以相对来说垃圾回收会比较复杂，但是如果移动，那么对象的分配就会更加复杂。相比来说，如果更加关注吞吐量，那么就选择移动，因为HotSpot中关注吞吐量的Parallel Scavenge是选择标记整理算法的。但是关注延迟的CMS是标记-清除算法的。但是CMS的策略是暂时容忍内存碎片，等到它已经影响到分配对象时，则再用标记-整理算法清理一遍。</p>
+</li>
+</ul>
+</li>
+<li><p>HosSpot垃圾回收算法实现</p>
+<ul>
+<li><p>根节点枚举</p>
+<ul>
+<li><p>因为根节点枚举需要系统中准确的全部的引用，所以这一个地方需要暂停所有的用户线程。‘</p>
+</li>
+<li><p>准确式内存管理： 明确知道栈中或者某地方的变量中到底是值还是引用。</p>
+</li>
+<li><p>OopMap</p>
+<ul>
+<li>准确的记录了哪些地方存放着对象引用</li>
+</ul>
+</li>
+<li><p>安全点</p>
+<ul>
+<li>因为导致OopMap变化的指令非常多，jvm不可能在每一个指令都去更改OopMap，这样就出现了安全点，在这块区域，指令的更改将会导致OopMap的更新。因此安全点选取的标准就是是否具有让程序长时间执行的特征。</li>
+</ul>
+</li>
+<li><p>如果让所有的线程跑到安全点上停止下来？</p>
+<ul>
+<li><p>抢先式中断</p>
+<ul>
+<li>先把所有用户程序暂停，如果发现某个线程不在安全点，则让他再运行一会，然后中断，直到它在安全点，但是基本上没有jvm采用这种方法</li>
+</ul>
+</li>
+<li><p>主动式中断</p>
+<ul>
+<li>轮询标志位，标志位一般和安全点在一个地方，再加上需要分配堆空间的地方。当标志位为真时，则到最近的一个安全点主动中断挂起。因为轮询非常普遍，所以要求足够精简。一般是通过test指令来测试访问标志位，如果不能访问成功，则产生一个自陷异常信号，然后交给预先注册的异常处理器中处理。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>安全区域</p>
+<ul>
+<li>当一些线程在阻塞或是sleep的时候，线程不能走到最近的安全点，但jvm也不可能等到阻塞的线程直到执行才开始回收。所以就有了安全区域，当线程进入安全区域时，他会标志自己进入了安全区域，安全区域就是这段代码不会影响到引用的改变。当阻塞或者sleep的线程想要从安全区域出来继续运行的时候，需要先判断类如根节点枚举或者其他需要暂停用户线程的这些阶段是否完成，如果完成了，才能继续执行，否则继续在安全区域等待。直到收到可以离开安全区域的信号为止</li>
+</ul>
+</li>
+<li><p>记忆集</p>
+<p>卡表的更新问题，因为每次引用的改变都必须去判断是否需要更新卡表，而这个如果是解释器去执行，那么中间可能有很多机会可以去更新卡表。但是jvm中有许多是编译的代码，是机器指令流的方式，那么也就必须将更新的这个操作一起集合在赋值的时候，这就是写屏障，写屏障类似于环绕型AOP切片，可以在赋值的后面插入更新卡表的命令。但是这里也有一个伪共享的问题，那就是因为cpu的缓存是缓存行，假设一行是64个字节，而卡表一般最简单就是字节数组，那么也就是一个缓存行里面可以放入64个卡页，也就是对应32KB的空间，如果多个线程同时对这32KB中的对象进行修改，那么由于缓存行的问题，就可能造成修改无效或者失败或者性能问题。解决方法就是在修改前加一个判断，判断这个卡页是否已经变脏，如果没有变脏，才将他变脏。控制参数为：-XX:+UseCondCardMark</p>
+<ul>
+<li><p>为了解决局部回收时跨代引用的问题，引入了记忆集的抽象数据结构，他一般有三种精度，字长精度，对象精度，和卡精度。最常用的就是卡精度，因为没有必要花费这么多的时间和空间去记忆的这么精准。HotSpot虚拟机中每卡页为512个字节，当这个卡页中有对象存在跨代引用，则将这个卡页标志为1</p>
+</li>
+<li><p>写屏障</p>
+<p>卡表的更新问题，因为每次引用的改变都必须去判断是否需要更新卡表，而这个如果是解释器去执行，那么中间可能有很多机会可以去更新卡表。但是jvm中有许多是编译的代码，是机器指令流的方式，那么也就必须将更新的这个操作一起集合在赋值的时候，这就是写屏障，写屏障类似于环绕型AOP切片，可以在赋值的后面插入更新卡表的命令。但是这里也有一个伪共享的问题，那就是因为cpu的缓存是缓存行，假设一行是64个字节，而卡表一般最简单就是字节数组，那么也就是一个缓存行里面可以放入64个卡页，也就是对应32KB的空间，如果多个线程同时对这32KB中的对象进行修改，那么由于缓存行的问题，就可能造成修改无效或者失败或者性能问题。解决方法就是在修改前加一个判断，判断这个卡页是否已经变脏，如果没有变脏，才将他变脏。控制参数为：-XX:+UseCondCardMark</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>并发的可达性分析</p>
+<ul>
+<li><p>目的：当gcroot扫描线程和用户线程并发执行时，不会由于用户线程对引用的更改导致将原本是存活的对象误删除</p>
+</li>
+<li><p>三色标记</p>
+<ul>
+<li>黑色: 存活，不会再扫描</li>
+<li>灰色： 扫描过，但是至少还有一个引用没有扫描</li>
+<li>白色： 还没有被扫描到的</li>
+</ul>
+</li>
+<li><p>导致黑色对象变成白色必须满足的两个条件</p>
+<ul>
+<li><ol>
+<li>黑色对象新增了一条或者多条对白色对象的引用</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>所有的灰色对象删除对该白色对象的直接或者间接引用。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>处理方法</p>
+<ul>
+<li><p>增量更新</p>
+<ul>
+<li>在黑色对象增加对白色对象的引用时，将其记录起来，等到扫描完后再单独对记录的这个黑色节点再次扫描，破坏的是第一个条件，CMS在用</li>
+</ul>
+</li>
+<li><p>原始快照</p>
+<ul>
+<li>在删除灰色节点到白色节点的引用时，就把这个要删除的引用记录下来，在并发扫描结束后，再将这些重新扫描一次。可以这样理解，无论引用关系是否删除，都按照最开始的原始快照那样再扫描一次这些记录的节点。</li>
+</ul>
+</li>
+<li><p>比较</p>
+<ul>
+<li>CMS使用了增量跟新，但是G1采用的是原始快照也就是TLAB，TLAB需要采用写前屏障来跟踪并发时的指针变化情况。但是原始快照可以节省并发标记和重新标记阶段的消耗。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="经典垃圾回收器"><a href="#经典垃圾回收器" class="headerlink" title="经典垃圾回收器"></a>经典垃圾回收器</h3><ul>
+<li></li>
+<li><p>Serial （新生代收集器）</p>
+<ul>
+<li><ol>
+<li>单线程 </li>
+</ol>
+<ul>
+<li><ol>
+<li>垃圾回收只有一个线程</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>垃圾回收中暂停所有其他线程。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>新生代</p>
+<ul>
+<li>复制算法</li>
+</ul>
+</li>
+<li><p>老年代</p>
+<ul>
+<li>标记-整理算法</li>
+</ul>
+</li>
+<li><p>使用场景</p>
+<ul>
+<li>资源受限的环境，因为他的额外内存消耗最小</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>ParNew</p>
+<ul>
+<li>除了可以多线程并行收集之外，其他的一切都和Serial一样，照样要暂停所有其他线程，回收策略等等都一样。新生代收集器</li>
+<li>但是在服务器端它用的相对很多，主要是它可以与CMS配合使用。在JDK9及以后，只能和CMS配合使用。也就是选择CMS之后的新生代收集就默认使用的它。</li>
+</ul>
+</li>
+<li><p>Parallel Scavenge（新生代收集器）</p>
+<ul>
+<li><p>多线程并行收集，标记复制算法</p>
+</li>
+<li><p>目标</p>
+<ul>
+<li>达到一个可控制的吞吐量，而CMS等关注的是尽量缩短垃圾收集时用户线程的停顿时间</li>
+<li>吞吐量 = 运行用户代码时间  / 运行用户代码时间 + 运行垃圾收集时间</li>
+</ul>
+</li>
+<li><p>控制参数</p>
+<ul>
+<li><p>-XX:MaxGCPauseMilis 控制最大垃圾收集停顿时间</p>
+<ul>
+<li>毫秒数，但是设置的越低，是去缩减新生代的大小来达到的，增加了收集次数，但是减少了时间</li>
+</ul>
+</li>
+<li><p>-XX:GCTimeRatio 设置吞吐量</p>
+<ul>
+<li>可以设置一个0-100内的整数，比如19，那么系统则保证垃圾回收时间小于1/(1 + 19) 等于5%以内。默认是99，也就是保证小于1%；</li>
+</ul>
+</li>
+<li><p>-XX:+UseAdativeSizePolicy</p>
+<ul>
+<li>jvm根据系统状态去调节时间和吞吐量参数，但是你可以给他一个目标，比如你设置最大停顿时间为100ms，它则会往这个方向去优化</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Serial Old （老年代回收）</p>
+<ul>
+<li><p>单线程，标记整理</p>
+</li>
+<li><p>使用场景：</p>
+<ul>
+<li>jdk5之前配合Parallel Scavenge 使用</li>
+<li>CMS收集器失败之后的后备预案</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Parallel Old（老年代回收）</p>
+<ul>
+<li><p>是Parallel Scavenge的老年代版本</p>
+</li>
+<li><p>多线程并发收集，标记-整理算法，JDK6开始提供</p>
+</li>
+<li><p>使用场景：</p>
+<ul>
+<li>配合Parallel Scavenge使用，在一些注重吞吐量的系统中使用</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>CMS (Concurrent Mark Sweep)收集器（老年代回收）</p>
+<ul>
+<li><p>目标</p>
+<ul>
+<li>获取最短停顿时间</li>
+</ul>
+</li>
+<li><p>标记清除算法</p>
+</li>
+<li><p>运行过程</p>
+<ul>
+<li><p>初始标记</p>
+<ul>
+<li>标记那些GC roots直接引用的对象，JDK7及以前是单线程，jdk8以后改为多线程</li>
+</ul>
+</li>
+<li><p>并发标记</p>
+<ul>
+<li>从初始标记的开始扫描所有的对象图</li>
+</ul>
+</li>
+<li><p>重新标记</p>
+<ul>
+<li>增量更新，主要为了避免删除那些存活的但是被标记为白色的对象。</li>
+</ul>
+</li>
+<li><p>并发清理</p>
+</li>
+</ul>
+</li>
+<li><p>缺点</p>
+<ul>
+<li><ol>
+<li>对处理器资源非常敏感，不适合在一些处理器内核数量较小的平台上使用。</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>CMS无法处理浮动垃圾。因为并发时用户线程在执行，肯定会产生很多垃圾，但是这些垃圾不在原本的对象图中，所有无法被收集。这样导致CMS必须留出空间给并发收集时新对象的分配空间用。如果新对象分配时申请不到空间，则将导致CMS并发收集失败，导致需要掉用备用的Serial Old来进行垃圾回收，但是这样就要暂停掉所有用户线程。</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>由于CMS采用的是标记清除算法，所以肯定会导致很多的垃圾碎片，这样就肯定会导致FULL GC提前触发。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>G1(Garbage First)全功能垃圾回收器</p>
+<ul>
+<li><ol>
+<li>它并不将堆按照原本的新生代，老年代这样的来划分内存结构，而是将整个堆划分为一个个的region，每个region都可以按照需求变为新生代或者老年代。</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>有一类特殊的region，humongous，专门用来存放大对象，避免复制，直接进入老年代，大对象的判断是是否大于region的1/2，</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>SATB 原始快照，采用原始快照来解决并发标记时可能将存活的对象清理。</li>
+</ol>
+</li>
+<li><ol start="4">
+<li>Rset 记忆集，和卡表有点像，但是不一致，卡表采用的是points-out（我引用了谁），G1的记忆集用的是points-in(谁引用了我的对象)。</li>
+</ol>
+</li>
+<li><ol start="5">
+<li>停顿预测模型</li>
+</ol>
+<ul>
+<li>通过前面的垃圾回收的时间收集，以衰减均值作为理论模型，也就是新数据所占权重比旧数据高。</li>
+</ul>
+</li>
+<li><p>执行过程</p>
+<ul>
+<li><ol>
+<li>初始标记</li>
+</ol>
+<ul>
+<li>暂停用户进程</li>
+</ul>
+</li>
+<li><ol start="2">
+<li>并发标记</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>最终标记</li>
+</ol>
+<ul>
+<li>重新标记TLAB剩余的引用</li>
+</ul>
+</li>
+<li><ol start="4">
+<li>清除垃圾</li>
+</ol>
+<ul>
+<li>把决定回收的region里面所有存活的对向复制到另一个空region中去，然后清除掉这个旧region的全部内容</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>shenandoah</p>
+<ul>
+<li><p>G1的升级版，最重要的是支持了并发的整理算法，以及低延迟，他们的项目目标是做到10ms一下</p>
+</li>
+<li><p>去掉了G1中非常占用资源的Rset，改为连接矩阵来进行标记跨区引用</p>
+</li>
+<li><p>过程</p>
+<ul>
+<li><ol>
+<li>初始标记</li>
+</ol>
+<ul>
+<li>stop the world</li>
+</ul>
+</li>
+<li><ol start="2">
+<li>并发标记</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>最终标记</li>
+</ol>
+</li>
+<li><ol start="4">
+<li>并发清理</li>
+</ol>
+<ul>
+<li>清理那些一个存活对象都没有的region</li>
+</ul>
+</li>
+<li><ol start="5">
+<li>并发回收</li>
+</ol>
+<ul>
+<li>将存活的对象复制一份到其他region，是和G1的核心差别，主要技术有读屏障和Brooks Pointers转发指针</li>
+</ul>
+</li>
+<li><ol start="6">
+<li>初始引用更新</li>
+</ol>
+<ul>
+<li>主要是等待前一步的所有并发线程都工作完毕</li>
+</ul>
+</li>
+<li><ol start="7">
+<li>并发引用更新</li>
+</ol>
+<ul>
+<li>真正的进行引用更新操作。按照地址空间的顺序来进行</li>
+</ul>
+</li>
+<li><ol start="8">
+<li>最终引用更新</li>
+</ol>
+<ul>
+<li>修正存在于GC roots中的引用。需要暂停所有用户进程</li>
+</ul>
+</li>
+<li><ol start="9">
+<li>并发清理</li>
+</ol>
+<ul>
+<li>清理掉回收集中的所有region</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>对象移动和用户程序的并发</p>
+<ul>
+<li><p>保护陷进</p>
+<ul>
+<li>效率低，频繁的状态转换</li>
+</ul>
+</li>
+<li><p>brooks Pointers</p>
+<p>brooks pointers 是通过在原本的对象结构的基础上，在他的前面添加一个新的引用，当这个对象不在并发移动时，值为它自己。但是在并发移动时，值为它的新的地址。<br>这样带来一个性能消耗，就是每次访问对象都需要访问两次。但是相比于保护陷阱带来的状态切换，还是可以接受。<br>但是这样带来了一个多线程访问时的问题，当jvm在移动对象时，如果这个时候有一个写入进程来修改此对象，但是假如此时jvm并没有来的及修改转发指针的地址，导致他将新的修改修改在了旧的对象上，这是绝对不允许发生的，jvm采用了cas来保证并发时对象的访问正确性的。</p>
+</li>
+</ul>
+</li>
+<li><p>读写屏障</p>
+<ul>
+<li>基于引用的访问屏障</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>ZGC收集器</p>
+<ul>
+<li>基于Region，不设分代，使用了读屏障，染色指针，和内存多重映射等来实现可并发的标记-整理算法的，以低延迟为目标的</li>
+<li>染色指针</li>
+<li>多重映射</li>
+</ul>
+</li>
+</ul>
+<h2 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h2><h3 id="标记清除算法"><a href="#标记清除算法" class="headerlink" title="标记清除算法"></a>标记清除算法</h3><h3 id="标记整理算法"><a href="#标记整理算法" class="headerlink" title="标记整理算法"></a>标记整理算法</h3><h2 id="内存分配和回收"><a href="#内存分配和回收" class="headerlink" title="内存分配和回收"></a>内存分配和回收</h2><h3 id="1-对象优先在Eden分配"><a href="#1-对象优先在Eden分配" class="headerlink" title="1. 对象优先在Eden分配"></a>1. 对象优先在Eden分配</h3><h3 id="2-大对象直接进入老年代"><a href="#2-大对象直接进入老年代" class="headerlink" title="2. 大对象直接进入老年代"></a>2. 大对象直接进入老年代</h3><h3 id="3-长期存活（年龄大于等于15）则进入老年代"><a href="#3-长期存活（年龄大于等于15）则进入老年代" class="headerlink" title="3. 长期存活（年龄大于等于15）则进入老年代"></a>3. 长期存活（年龄大于等于15）则进入老年代</h3><h3 id="4-动态对象年龄判断（只要Suivivor中同年龄的对象超过Survivor空间的一半，则大于等于此年龄的全部进入老年代）"><a href="#4-动态对象年龄判断（只要Suivivor中同年龄的对象超过Survivor空间的一半，则大于等于此年龄的全部进入老年代）" class="headerlink" title="4. 动态对象年龄判断（只要Suivivor中同年龄的对象超过Survivor空间的一半，则大于等于此年龄的全部进入老年代）"></a>4. 动态对象年龄判断（只要Suivivor中同年龄的对象超过Survivor空间的一半，则大于等于此年龄的全部进入老年代）</h3><h3 id="5-空间分配担保"><a href="#5-空间分配担保" class="headerlink" title="5. 空间分配担保"></a>5. 空间分配担保</h3><ul>
+<li>在发送Minor gc前需要判断老年代是否有连续的大于新生代所有对象的总空间或者历次进入到老年代的平均大小，如果有，则进行一次Minor gc，如果最后发现老年代空间不够，则触发一次Full gc。</li>
+</ul>
+<h2 id="OOM异常分析和排除"><a href="#OOM异常分析和排除" class="headerlink" title="OOM异常分析和排除"></a>OOM异常分析和排除</h2><h3 id="堆OOM"><a href="#堆OOM" class="headerlink" title="堆OOM"></a>堆OOM</h3><ul>
+<li>-Xms -Xmx  -XX:+HeapDumpOnOutOfMemoryError   出现异常时Dump出内存堆转储快照</li>
+</ul>
+<h2 id="面试问题"><a href="#面试问题" class="headerlink" title="面试问题"></a>面试问题</h2><h3 id="new-一个对象的过程"><a href="#new-一个对象的过程" class="headerlink" title="new 一个对象的过程"></a>new 一个对象的过程</h3><ol>
+<li>先去常量池，查找这个类的符号引号，判断这个类是否被加载进jvm。</li>
+<li>如果类已经加载进jvm，则继续下一步操作，如果没有，加载进jvm</li>
+<li>因为新建对象的类信息已经加载进jvm，所以此类的对象所需要占有的大小是确定的，在堆中分配一块此大小的地址给此对象。</li>
+<li>因为不同垃圾回收器可能不一定有空间压缩操作，所以分配地址就有可能有两种情况，第一种是简单的移动一下指针，因为此时的空间是被压缩过的。另一种就是比较复杂的空闲链表，在其中找到一块比这个大的切割后分配给他，将剩余的继续加入空闲链表。</li>
+<li>因为new 对象在jvm中是非常常见的事，所以指针移动需要进行线程安全保证。虚拟机一般上是使用CAS配上失败重试来保证更新操作的原子性。另外一种保证线程安全的就是通过TLAB（本地线程分配缓冲），当jvm中创建一个线程时，就在堆中提前给他分配一块地址，此线程就在此空间内进行对象内存分配。只有此空间用完了，重新分配时才需要保证线程安全。</li>
+<li>空间分配后，应该将该空间里面进行全部的初始化（不包括对象头），以保证类属性可以被初始化，当然这一步操作可以在TLAB分配时就顺便进行。</li>
+<li>jvm对对象头进行一定的设置，比如这个对象的是什么类的实例，如果才能找到元数据，对象的gc分类等等。</li>
+<li>上面步骤完成后，类的创建就基本上完成了，但是还有一步很重要的操作没有进行，那就是构造函数还没有执行。一般new出来的对象在new指令后面都有一个invokespecial指令，这个指令指向对象的构造方法。</li>
+</ol>
+<h3 id="String-str1-new-StringBuilder-“计算机”-append-“软件”-toString"><a href="#String-str1-new-StringBuilder-“计算机”-append-“软件”-toString" class="headerlink" title="String str1 = new StringBuilder(“计算机”).append(“软件”).toString();"></a>String str1 = new StringBuilder(“计算机”).append(“软件”).toString();</h3><pre><code>    String str2 = new StringBuilder(&quot;ja&quot;).append(&quot;va&quot;).toString();
+    System.out.println(str1.intern() == str1);
+    System.out.println(str2.intern() == str2);
+</code></pre>
+<ul>
+<li>true,false从jdk7开始字符串常量池移动到了堆中，因为这些StringBuilder创建对象也在堆中，所以这个时候就进行了更改，Intern方法时，直接就将堆中的这个对象的地址记录了下来，也就是常量池中指向的就是这个地址。</li>
+</ul>
+<h2 id="标准VM选项，VM规范的选项"><a href="#标准VM选项，VM规范的选项" class="headerlink" title="- : 标准VM选项，VM规范的选项"></a>- : 标准VM选项，VM规范的选项</h2><p>-X: 非标准VM选项，不保证所有VM支持<br>-XX: 高级选项，高级特性，但属于不稳定的选项</p>
+<h2 id="虚拟机的类加载机制"><a href="#虚拟机的类加载机制" class="headerlink" title="虚拟机的类加载机制"></a>虚拟机的类加载机制</h2><h3 id="加载过程"><a href="#加载过程" class="headerlink" title="加载过程"></a>加载过程</h3><ul>
+<li><p>加载</p>
+<ul>
+<li>通过类的全限定名拿到类的二进制字节流，并且将二进制字节流转化为方法区的运行时数据结构，并且在堆中生成一个此类的Class对象</li>
+</ul>
+</li>
+<li><p>连接</p>
+<ul>
+<li><p>验证</p>
+<ul>
+<li><p>文件格式验证</p>
+</li>
+<li><p>元数据验证</p>
+<ul>
+<li>语义分析代码，符合java的规范</li>
+</ul>
+</li>
+<li><p>字节码验证</p>
+</li>
+<li><p>符号引用验证</p>
+</li>
+</ul>
+</li>
+<li><p>准备</p>
+<ul>
+<li>为类属性分配内存并且初始化为00000.final修饰的常量此时会被赋值。</li>
+</ul>
+</li>
+<li><p>解析</p>
+<ul>
+<li>把符号引用转化为直接引用</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>初始化</p>
+<ul>
+<li>执行clinit方法，类变量的赋值语句和静态语句块中的语句，多线程时必须保证只有一个线程去执行这个操作。</li>
+</ul>
+</li>
+</ul>
+<h3 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h3><ul>
+<li><p>启动类加载器</p>
+<ul>
+<li>lib目录</li>
+</ul>
+</li>
+<li><p>扩展类加载器</p>
+<ul>
+<li>lib/ext</li>
+</ul>
+</li>
+<li><p>应用程序加载器</p>
+<ul>
+<li>加载类路径下</li>
+</ul>
+</li>
+<li><p>双亲委派模型</p>
+<ul>
+<li>类加载类之前先询问父类是否可以加载，如果可以，由父类加载。这样避免核心的Java基础类被自定义类加载器载入。保证java的基本稳定性。</li>
+</ul>
+</li>
+<li><p>双亲委派模型的三次破坏</p>
+<ul>
+<li>findClass方法，因为JDK1.2提出双亲委派的时候，有很多自定义的类加载器在使用，自定义类加载器的时候不要重写loadClass方法，而是去重写findClass方法。</li>
+<li>例如JNDI这些服务，他们的基础上层类需要下层加载器来加载，所以引入了一个线程上下文加载器。</li>
+<li>热部署和热替换，没有使用双亲委派，而是更为复杂的网状结构。</li>
+</ul>
+</li>
+</ul>
+<h2 id="虚拟机字节码执行引擎"><a href="#虚拟机字节码执行引擎" class="headerlink" title="虚拟机字节码执行引擎"></a>虚拟机字节码执行引擎</h2><h3 id="栈帧"><a href="#栈帧" class="headerlink" title="栈帧"></a>栈帧</h3><ul>
+<li><p>局部变量表</p>
+</li>
+<li><p>操作数栈</p>
+</li>
+<li><p>动态连接</p>
+</li>
+<li><p>方法返回地址</p>
+<ul>
+<li>正常退出</li>
+<li>出错</li>
+</ul>
+</li>
+</ul>
+<h3 id="方法调用"><a href="#方法调用" class="headerlink" title="方法调用"></a>方法调用</h3><ul>
+<li><p>解析</p>
+<ul>
+<li>invokestatic</li>
+<li>invokespecial</li>
+<li>被final修饰的方法（invokevirtual）</li>
+</ul>
+</li>
+<li><p>分派</p>
+<ul>
+<li><p>静态分派</p>
+<ul>
+<li>依赖静态类型来决定方法分配版本的都是，典型的就是方法重载。静态类型指的是外观类型。</li>
+</ul>
+</li>
+<li><p>动态分派</p>
+<ul>
+<li><p>invokevirtual</p>
+<ul>
+<li><p>执行流程</p>
+<ul>
+<li>找到操作数栈顶的第一个元素所指向对象的实际类型，然后去匹配方法的简单名称，看是否能够匹配上，如果不能，找这个对象的父类，然后继续pipe</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="对象"><a href="#对象" class="headerlink" title="对象"></a>对象</h2><h3 id="对象的空间分布"><a href="#对象的空间分布" class="headerlink" title="对象的空间分布"></a>对象的空间分布</h3><ul>
+<li><p>对象头</p>
+</li>
+<li><p>实例信息</p>
+<ul>
+<li>父类属性在前面</li>
+<li>对齐填充</li>
+</ul>
+</li>
+</ul>
+<h3 id="访问方式"><a href="#访问方式" class="headerlink" title="访问方式"></a>访问方式</h3><ul>
+<li><p>直接指针</p>
+<ul>
+<li>因为Java中普遍还是访问对象比访问元类型要多，所以平均下来还是直接指针更快</li>
+</ul>
+</li>
+<li><p>句柄访问</p>
+</li>
+</ul>
+<h2 id="Java内存模型和线程"><a href="#Java内存模型和线程" class="headerlink" title="Java内存模型和线程"></a>Java内存模型和线程</h2><h3 id="主内存和工作内存"><a href="#主内存和工作内存" class="headerlink" title="主内存和工作内存"></a>主内存和工作内存</h3><ul>
+<li>lock/unlock</li>
+<li>read/load</li>
+<li>use/assign</li>
+<li>store/write</li>
+</ul>
+<h3 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h3><ul>
+<li><p>保证变量可见性</p>
+</li>
+<li><p>禁止指令重排序优化</p>
+</li>
+<li><p>实现原理</p>
+<ul>
+<li>use前必须read</li>
+<li>assign后必须store</li>
+</ul>
+</li>
+<li><p>指令重排序问题</p>
+</li>
+</ul>
+<h3 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h3><ul>
+<li>前面的8个操作都是原子的</li>
+</ul>
+<h3 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h3><ul>
+<li><p>volatile</p>
+</li>
+<li><p>syncronized </p>
+<ul>
+<li>unlock某变量前必须把该变量store，write回主内存</li>
+</ul>
+</li>
+<li><p>final</p>
+</li>
+</ul>
+<h3 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h3><ul>
+<li>volatile</li>
+<li>syncronized</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Java</tag>
+        <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>聚焦爬虫</title>
+    <url>/2021/03/24/%E7%88%AC%E8%99%AB%E5%85%A5%E9%97%A8/</url>
+    <content><![CDATA[<h3 id="1-正则表达式"><a href="#1-正则表达式" class="headerlink" title="1. 正则表达式"></a>1. 正则表达式</h3><h3 id="2-bs4解析"><a href="#2-bs4解析" class="headerlink" title="2. bs4解析"></a>2. bs4解析</h3><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20201212132019.png" alt="image-20201212132018924"></p>
+<h4 id="2-1-定位标签"><a href="#2-1-定位标签" class="headerlink" title="2.1 定位标签"></a>2.1 定位标签</h4><ul>
+<li><p>soup.tagName    返回文档中第一次出现的名为tagName的标签</p>
+</li>
+<li><p>soup.find(‘tagName’)  </p>
+<ul>
+<li>和soup.tagName作用一致</li>
+<li>属性定位:  soup.find(‘tagName’,class_/id/attr=‘类’)  class加下划线是因为class是一个关键字</li>
+<li>soup.find_all(…) 找到符合标准的所有的标签</li>
+</ul>
+</li>
+<li><p>soup.select()  和css一样,中间参数为选择器</p>
+<ul>
+<li><p>soup.select(‘.class’)  可以是类选择器,id选择器,标签选择器,返回的是一个列表</p>
+</li>
+<li><p>层级选择 soup.select(‘ .tang &gt; ul &gt; li &gt; a’) [0] 查找清明时节的那一个标签, &gt; 表示的是层级关系(一个层级), 如果表示中间间隔多个层级,可以用空格,例如:</p>
+<p>soup.select(‘.tang &gt; ul a’)[0] 这样表示的是class属性为tang的标签下面的子标签ul下面的所有a标签(可以间隔多级,只要被ul包裹就行)的第一个a标签,也就是清明时节…</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-2-获取信息"><a href="#2-2-获取信息" class="headerlink" title="2.2 获取信息:"></a>2.2 获取信息:</h4><h5 id="2-2-1-获取标签之间的文本数据"><a href="#2-2-1-获取标签之间的文本数据" class="headerlink" title="2.2.1 获取标签之间的文本数据"></a>2.2.1 获取标签之间的文本数据</h5><p>soup.xxx.text   / .string / .get_text()</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">例如:</span><br><span class="line">     soup.select(‘ .tang &gt; ul &gt; li &gt; a’).text 返回的数据就是清明时节.....</span><br><span class="line">     soup.select(‘ .tang &gt; ul &gt; li &gt; a’).string</span><br><span class="line">     soup.select(‘ .tang &gt; ul &gt; li &gt; a’).get_text()</span><br><span class="line">差别:</span><br><span class="line">    text / get_text()可以获得标签之间的所有文本内容,即时这个这个内容不是它所直属的.例如:</span><br><span class="line">        &lt;div&gt;</span><br><span class="line">        	&lt;a&gt;我是a标签的直系内容&lt;/a&gt;</span><br><span class="line">            我是div直系的文本内容</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">        此方法可以获取所有子标签(这里是a标签)中的文本内容以及他的直系内容</span><br><span class="line">    string 只能获取该标签下的直系文本内容,这里就是只能获取到我是div直系的文本内容</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-获取标签的属性值"><a href="#2-获取标签的属性值" class="headerlink" title="2. 获取标签的属性值:"></a>2. 获取标签的属性值:</h5><p>soup.a[‘href’] 也就是和获取字典内容一样的方法 拿到a标签的href属性</p>
+<img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20201212133033.png" alt="image-20201212133033675" style="zoom:67%;" />
+
+<h3 id="3-Xpath"><a href="#3-Xpath" class="headerlink" title="3. Xpath"></a>3. Xpath</h3><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20201212142207.png" alt="image-20201212142207709"></p>
+<h4 id="3-1-定位"><a href="#3-1-定位" class="headerlink" title="3.1 定位:"></a>3.1 定位:</h4><h5 id="3-1-1-层级定位"><a href="#3-1-1-层级定位" class="headerlink" title="3.1.1 层级定位"></a>3.1.1 层级定位</h5><p>按照标签的层级属性进行定位</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="comment"># 将test.html转化为一个tree对象</span></span><br><span class="line">tree = etree.parse(<span class="string">&#x27;./test.html&#x27;</span>)</span><br><span class="line"><span class="comment"># 查找title标签 (目标上面的html图片内容)</span></span><br><span class="line">tree.xpath(<span class="string">&#x27;/html/head/title&#x27;</span>)  <span class="comment"># / 代表根节点或者一层的意思,后一种意思和bs4里面的&gt;作用相同</span></span><br><span class="line"><span class="comment"># 返回的是一个已经封装好的element对象list集合 </span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3-1-2-属性定位"><a href="#3-1-2-属性定位" class="headerlink" title="3.1.2 属性定位"></a>3.1.2 属性定位</h5><p>按照标签的某些属性(class,id 等等进行定位)</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="comment"># 将test.html转化为一个tree对象</span></span><br><span class="line">tree = etree.parse(<span class="string">&#x27;./test.html&#x27;</span>)</span><br><span class="line"><span class="comment"># 查找苏轼所在的p标签</span></span><br><span class="line">tree.xpath(<span class="string">&#x27;//div[@class=&quot;song&quot;]&#x27;</span>)  <span class="comment"># // 代表多层, 如果是直接//div,表示查找任意位置的div标签</span></span><br><span class="line"><span class="comment"># 返回的是一个已经封装好的element对象list集合</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3-1-3-索引定位"><a href="#3-1-3-索引定位" class="headerlink" title="3.1.3 索引定位"></a>3.1.3 索引定位</h5><p>按照层级和属性进行定位后,想查找这个标签下面固定位数的标签</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="comment"># 将test.html转化为一个tree对象</span></span><br><span class="line">tree = etree.parse(<span class="string">&#x27;./test.html&#x27;</span>)</span><br><span class="line"><span class="comment"># 查找class=&quot;song&quot;的div</span></span><br><span class="line">tree.xpath(<span class="string">&#x27;//div[@class=&quot;song&quot;]/p[3]&#x27;</span>)  <span class="comment"># // 代表多层, 如果是直接//div,表示查找任意位置的div标签,p[3]表示查询到的第三个p标签,注意是从1开始的</span></span><br><span class="line"><span class="comment"># 返回的是一个已经封装好的element对象list集合</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3-2-4-相对路径解析"><a href="#3-2-4-相对路径解析" class="headerlink" title="3.2.4 相对路径解析"></a>3.2.4 相对路径解析</h5><p>先解析到li,然后再由li对象开始解析,  ./表示从当前对象开始</p>
+<h5 id="3-2-5-与-或-聚合多种条件"><a href="#3-2-5-与-或-聚合多种条件" class="headerlink" title="3.2.5 与 / 或  聚合多种条件"></a>3.2.5 与 / 或  聚合多种条件</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="comment"># 将test.html转化为一个tree对象</span></span><br><span class="line">tree = etree.parse(<span class="string">&#x27;./test.html&#x27;</span>)</span><br><span class="line"><span class="comment"># 查找class=&quot;song&quot;的div</span></span><br><span class="line">tree.xpath(<span class="string">&#x27;//div[@class=&quot;song&quot;]/p[3] | //div/p&#x27;</span>)  表示无论符合前面的还是后面的,都可以 </span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20201212153311.png" alt="image-20201212153311164"></p>
+<h4 id="3-2-取值"><a href="#3-2-取值" class="headerlink" title="3.2 取值"></a>3.2 取值</h4><h5 id="3-2-1-取标签之间的值"><a href="#3-2-1-取标签之间的值" class="headerlink" title="3.2.1 取标签之间的值"></a>3.2.1 取标签之间的值</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 取苏轼这个词</span></span><br><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="comment"># 将test.html转化为一个tree对象</span></span><br><span class="line">tree = etree.parse(<span class="string">&#x27;./test.html&#x27;</span>)</span><br><span class="line"><span class="comment"># 查找class=&quot;song&quot;的div</span></span><br><span class="line">tree.xpath(<span class="string">&#x27;//div[@class=&quot;song&quot;]/p[3]/text()&#x27;</span>)  <span class="comment"># // 代表多层, 如果是直接//div,表示查找任意位置的div标签,p[3]表示查询到的第三个p标签,注意是从1开始的</span></span><br><span class="line">放回的是一个字符串列表,</span><br><span class="line">注意: </span><br><span class="line">    <span class="number">1.</span> /text()表示取p[<span class="number">3</span>]的直系标签内的值,不包括其子标签的标签间的值</span><br><span class="line">    <span class="number">2.</span> //text()表示取得这个标签下面所有的标签间的值,包括子标签的标签间</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-2-2-取标签属性值"><a href="#3-2-2-取标签属性值" class="headerlink" title="3.2.2 取标签属性值"></a>3.2.2 取标签属性值</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># img标签的src属性</span></span><br><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"><span class="comment"># 将test.html转化为一个tree对象</span></span><br><span class="line">tree = etree.parse(<span class="string">&#x27;./test.html&#x27;</span>)</span><br><span class="line"><span class="comment"># 查找class=&quot;song&quot;的div</span></span><br><span class="line">tree.xpath(<span class="string">&#x27;//img/@src&#x27;</span>)  <span class="comment"># // 代表多层, 如果是直接//div,表示查找任意位置的div标签,p[3]表示查询到的第三个p标签,注意是从1开始的</span></span><br><span class="line">放回的是一个字符串列表,</span><br><span class="line">注意: </span><br><span class="line">    <span class="number">1.</span> /@src表示取这个标签的这个属性值</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>python</tag>
+        <tag>爬虫</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Docker</title>
+    <url>/2021/03/24/Docker/</url>
+    <content><![CDATA[<h2 id="1-理念"><a href="#1-理念" class="headerlink" title="1.理念"></a>1.理念</h2><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912185811.png" alt="image-20200912185810914"></p>
+<ul>
+<li><p>一次构建,随处运行</p>
+</li>
+<li><p>解决运行环境和配置问题软件容器,方便做持续集成并有助于整体发布的容器虚拟化技术</p>
+</li>
+<li><p>和虚拟机的区别</p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912195455.png" alt="image-20200912195455148"></p>
+</li>
+</ul>
+<h2 id="2-docker组成"><a href="#2-docker组成" class="headerlink" title="2.docker组成"></a>2.docker组成</h2><ul>
+<li><p>架构图:</p>
+</li>
+<li><p><img src="C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912200443779.png" alt="image-20200912200443779"></p>
+</li>
+<li><p>基本组成:</p>
+<ul>
+<li><p>镜像:</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">类似于Java的类,可以创建多个对象(也就是docker的容器)</span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">镜像是分层的</span></span><br></pre></td></tr></table></figure></li>
+<li><p>容器</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">Docker利用容器(Container)独立运行的一个或一组应用.容器时用镜像创建的运行实例.</span><br><span class="line">容器可以被启动,开始,停止,删除.每个容器都是相互隔离的,保证安全的平台.</span><br><span class="line">可以把容器看作以简易版的Linux环境(包括root用户权限,进程空间,用户空间,和网络空间等)和运行在其中的应用程序,容器的定义     和镜像几乎一模一样,也是一堆层的统一视角.唯一区别在于容器的最上面那一层是可读可写的.</span><br></pre></td></tr></table></figure></li>
+<li><p>仓库</p>
+</li>
+</ul>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912205724.png" alt="image-20200912205724008"></p>
+</li>
+</ul>
+<h2 id="3-底层原理"><a href="#3-底层原理" class="headerlink" title="3.底层原理"></a>3.底层原理</h2><ul>
+<li>run执行过程</li>
+</ul>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225141.png" alt="image-20200912225141330"></p>
+<ul>
+<li><p>为什么Docker比VM快?</p>
+<p><img src="C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912225428414.png" alt="image-20200912225428414"></p>
+</li>
+</ul>
+<h2 id="4-Docker常用命令"><a href="#4-Docker常用命令" class="headerlink" title="4.Docker常用命令"></a>4.Docker常用命令</h2><ul>
+<li><p>文档</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">Usage:	docker [OPTIONS] COMMAND</span><br><span class="line"></span><br><span class="line">A self-sufficient runtime for containers</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line"><span class="code">      --config string      Location of client config files (default &quot;/root/.docker&quot;)</span></span><br><span class="line"><span class="code">  -c, --context string     Name of the context to use to connect to the daemon</span></span><br><span class="line"><span class="code">                           (overrides DOCKER_HOST env var and default context set with</span></span><br><span class="line"><span class="code">                           &quot;docker context use&quot;)</span></span><br><span class="line"><span class="code">  -D, --debug              Enable debug mode</span></span><br><span class="line"><span class="code">  -H, --host list          Daemon socket(s) to connect to</span></span><br><span class="line"><span class="code">  -l, --log-level string   Set the logging level</span></span><br><span class="line"><span class="code">                           (&quot;debug&quot;|&quot;info&quot;|&quot;warn&quot;|&quot;error&quot;|&quot;fatal&quot;) (default &quot;info&quot;)</span></span><br><span class="line"><span class="code">      --tls                Use TLS; implied by --tlsverify</span></span><br><span class="line"><span class="code">      --tlscacert string   Trust certs signed only by this CA (default</span></span><br><span class="line"><span class="code">                           &quot;/root/.docker/ca.pem&quot;)</span></span><br><span class="line"><span class="code">      --tlscert string     Path to TLS certificate file (default &quot;/root/.docker/cert.pem&quot;)</span></span><br><span class="line"><span class="code">      --tlskey string      Path to TLS key file (default &quot;/root/.docker/key.pem&quot;)</span></span><br><span class="line"><span class="code">      --tlsverify          Use TLS and verify the remote</span></span><br><span class="line"><span class="code">  -v, --version            Print version information and quit</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">Management Commands:</span><br><span class="line">  builder     Manage builds</span><br><span class="line">  config      Manage Docker configs</span><br><span class="line">  container   Manage containers</span><br><span class="line">  context     Manage contexts</span><br><span class="line">  engine      Manage the docker engine</span><br><span class="line">  image       Manage images</span><br><span class="line">  network     Manage networks</span><br><span class="line">  node        Manage Swarm nodes</span><br><span class="line">  plugin      Manage plugins</span><br><span class="line">  secret      Manage Docker secrets</span><br><span class="line">  service     Manage services</span><br><span class="line">  stack       Manage Docker stacks</span><br><span class="line">  swarm       Manage Swarm</span><br><span class="line">  system      Manage Docker</span><br><span class="line">  trust       Manage trust on Docker images</span><br><span class="line">  volume      Manage volumes</span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line">  attach      Attach local standard input, output, and error streams to a running container</span><br><span class="line">  build       Build an image from a Dockerfile</span><br><span class="line">  commit      Create a new image from a container&#x27;s changes</span><br><span class="line">  cp          Copy files/folders between a container and the local filesystem</span><br><span class="line">  create      Create a new container</span><br><span class="line">  diff        Inspect changes to files or directories on a container&#x27;s filesystem</span><br><span class="line">  events      Get real time events from the server</span><br><span class="line">  exec        Run a command in a running container</span><br><span class="line">  export      Export a container&#x27;s filesystem as a tar archive</span><br><span class="line">  history     Show the history of an image</span><br><span class="line">  images      List images</span><br><span class="line">  import      Import the contents from a tarball to create a filesystem image</span><br><span class="line">  info        Display system-wide information</span><br><span class="line">  inspect     Return low-level information on Docker objects</span><br><span class="line">  kill        Kill one or more running containers</span><br><span class="line">  load        Load an image from a tar archive or STDIN</span><br><span class="line">  login       Log in to a Docker registry</span><br><span class="line">  logout      Log out from a Docker registry</span><br><span class="line">  logs        Fetch the logs of a container</span><br><span class="line">  pause       Pause all processes within one or more containers</span><br><span class="line">  port        List port mappings or a specific mapping for the container</span><br><span class="line">  ps          List containers</span><br><span class="line">  pull        Pull an image or a repository from a registry</span><br><span class="line">  push        Push an image or a repository to a registry</span><br><span class="line">  rename      Rename a container</span><br><span class="line">  restart     Restart one or more containers</span><br><span class="line">  rm          Remove one or more containers</span><br><span class="line">  rmi         Remove one or more images</span><br><span class="line">  run         Run a command in a new container</span><br><span class="line">  save        Save one or more images to a tar archive (streamed to STDOUT by default)</span><br><span class="line">  search      Search the Docker Hub for images</span><br><span class="line">  start       Start one or more stopped containers</span><br><span class="line">  stats       Display a live stream of container(s) resource usage statistics</span><br><span class="line">  stop        Stop one or more running containers</span><br><span class="line">  tag         Create a tag TARGET<span class="emphasis">_IMAGE that refers to SOURCE_</span>IMAGE</span><br><span class="line">  top         Display the running processes of a container</span><br><span class="line">  unpause     Unpause all processes within one or more containers</span><br><span class="line">  update      Update configuration of one or more containers</span><br><span class="line">  version     Show the Docker version information</span><br><span class="line">  wait        Block until one or more containers stop, then print their exit codes</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p>帮助命令:</p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225816.png" alt="image-20200912225816054"></p>
+</li>
+<li><p>镜像命令:</p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225842.png" alt="image-20200912225842275"></p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker images 列出本机镜像文件</span><br><span class="line">常用参数说明:</span><br><span class="line"><span class="code">    -a:列出本地所有的镜像(含中间映像层)</span></span><br><span class="line"><span class="code">    -q:只显示镜像ID</span></span><br><span class="line"><span class="code">    --digests: 显示镜像的摘要信息</span></span><br><span class="line"><span class="code">    --no-trunc:显示完整的镜像信息</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912230622.png" alt="image-20200912230621978"></p>
+<ul>
+<li>docker search`</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker search 镜像名字</span><br><span class="line">  </span><br><span class="line">去hub.docker上面查有哪些镜像</span><br><span class="line">  </span><br><span class="line">参数说明: </span><br><span class="line"><span class="code">    --no-trunc:显示完整的镜像描述</span></span><br><span class="line"><span class="code">    -s:列出收藏数不小于指定值的镜像</span></span><br><span class="line"><span class="code">    --automated:只列出automated build类型的镜像</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912231246.png" alt="image-20200912231246913"></p>
+<ul>
+<li>docker pull 镜像名</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker [options] pull 镜像名 [:tags]</span><br><span class="line">  </span><br><span class="line">如果不加后面的tag,那么默认是latest最新版本. </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>docker rmi 某个xxx镜像名字ID [tag]</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">删除镜像</span><br><span class="line"><span class="code">    不加后面的tag默认删除latest</span></span><br><span class="line"><span class="code">删除单个 docker rmi 镜像名</span></span><br><span class="line"><span class="code">删除多个 docker rmi -f(强制) 镜像名1:tag 镜像名2:tag</span></span><br><span class="line"><span class="code">删除全部 docker rmi -f $(docker images -qa)</span></span><br></pre></td></tr></table></figure></li>
+<li><p>容器命令</p>
+<ul>
+<li><p>docker run [Options] image [command]</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">创建并启动容器</span><br><span class="line">常用选项:</span><br><span class="line"><span class="code">	</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913131045.png" alt="image-20200913131038245"></p>
+</li>
+<li><p>docker ps [OPTIONS] 列出当前所有正在运行的容器</p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913132839.png" alt="image-20200913132839771"></p>
+</li>
+</ul>
+</li>
+<li><p>退出容器</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">exit  容器停止后退出,也就是下次使用得重启</span><br><span class="line">ctrl+P+Q 容器不停止退出,下次可以继续使用,只是暂时退出</span><br></pre></td></tr></table></figure></li>
+<li><p>开启容器</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker start 容器名/id</span><br></pre></td></tr></table></figure></li>
+<li><p>重启容器</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker restart 容器名/id</span><br></pre></td></tr></table></figure></li>
+<li><p>停止容器</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker stop 容器名/id  正常关机</span><br></pre></td></tr></table></figure></li>
+<li><p>强制停止</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker kill 容器名/id  类似于直接拔电源</span><br></pre></td></tr></table></figure></li>
+<li><p>删除已停止的容器</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker rm  容器ID</span><br><span class="line"><span class="code">	强制删除 docker rm -f 容器ID</span></span><br><span class="line"><span class="code">	一次性删除多个容器 docker rm -f $(docker ps -a -q)</span></span><br><span class="line"><span class="code">					docker ps -a -q | xargs docker rm重要</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="重要细节"><a href="#重要细节" class="headerlink" title="重要细节:"></a>重要细节:</h4><ul>
+<li><p>启动守护式容器 docker run -d  镜像名</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker run -it centos  交互式启动</span><br><span class="line">docker run -d centos 	守护式启动</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913194303.png" alt="image-20200913194303547"></p>
+</li>
+<li><p>查看容器日志</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker logs -f -t --t下`ail 容器ID</span><br><span class="line"><span class="code">	-t 列出日志时间</span></span><br><span class="line"><span class="code">	-f 实时打印日志</span></span><br><span class="line"><span class="code">	--tail num 显示最后num行</span></span><br></pre></td></tr></table></figure></li>
+<li><p>查看容器内运行的进程; docker top 容器ID</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">因为docker容器可以看成一个简易版的linux</span><br></pre></td></tr></table></figure></li>
+<li><p>查看容器内部细节 docker inspect 容器ID</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">  </span><br></pre></td></tr></table></figure></li>
+<li><p>进入正在运行的容器并以命令行交互: </p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker exec  -it 容器ID bashShell </span><br><span class="line">重新进入 docker attach 容器ID</span><br><span class="line"></span><br><span class="line">区别: attach 直接进入容器启动命令的终端</span><br><span class="line"><span class="code">	  exec 在容器中打开新的终端,并且可以启动新的进程.</span></span><br><span class="line"><span class="code">	  </span></span><br><span class="line"><span class="code">	exec 可以在桌面执行某容器的内部命令并且将结果返回至桌面.可以在外层直接执行内部的命令然后放回结果到外层.</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920163104.png" alt="image-20200920162859832"></p>
+</li>
+<li><p>从容器类拷贝文件到主机上 docker cp 容器ID:/路径 目的路径</p>
+</li>
+<li><p>常用命令:</p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225541.png" alt="image-20200913225541571"></p>
+</li>
+</ul>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225614.png" alt="image-20200913225614050"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225637.png" alt="image-20200913225637235"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225816.png" alt="image-20200913225816758"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225835.png" alt="image-20200913225835412"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225912.png" alt="image-20200913225911982"></p>
+<h2 id="5-Docker镜像"><a href="#5-Docker镜像" class="headerlink" title="5.Docker镜像"></a>5.Docker镜像</h2><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230338.png" alt="image-20200913230338412"></p>
+<ul>
+<li><p>概念:</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">镜像是一种轻量级,可执行的独立软件包,用来打包软件运行环境和基于运行环境开发的软件,它包含运行某个软件所需的所有内容,包括代码,运行时,库,环境变量和配置文件.</span><br></pre></td></tr></table></figure></li>
+<li><p>UnionFS联合文件系统</p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230622.png" alt="image-20200913230622073"></p>
+</li>
+<li><p>docker镜像加载原理</p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230751.png" alt="image-20200913230751572"></p>
+</li>
+</ul>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913231809.png" alt="image-20200913231809604"></p>
+<ul>
+<li><p>镜像分层的概念(以tomcat为什么这么大为路径)</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">因为联合文件系统UnionFS,tomcat需要包含它所有他所需的底层环境,一层一层这样叠加起来,就会变得很大</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232017.png" alt="image-20200913232017843"></p>
+</li>
+<li><p>为什么docker要采用多层镜像?</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">最大的好处 -共享资源</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232312.png" alt="image-20200913232312124"></p>
+</li>
+<li><p>特点:</p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232403.png" alt="image-20200913232403285"></p>
+</li>
+<li><p>补充:</p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232633.png" alt="image-20200913232633377"></p>
+</li>
+</ul>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232725.png" alt="image-20200913232725769"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233042.png" alt="image-20200913233042478"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233138.png" alt="image-20200913233138604"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233419.png" alt="image-20200913233419650"></p>
+<h2 id="Docker容器数据卷"><a href="#Docker容器数据卷" class="headerlink" title="Docker容器数据卷"></a>Docker容器数据卷</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念:"></a>概念:</h3><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134004.png" alt="image-20200920133957409"></p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">其实也就是相当于在容器和系统之间建立一个可以同步共享的文件夹,</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="作用"><a href="#作用" class="headerlink" title="作用:"></a>作用:</h3><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134044.png" alt="image-20200920134044123"></p>
+<h3 id="创建容器数据卷"><a href="#创建容器数据卷" class="headerlink" title="创建容器数据卷:"></a>创建容器数据卷:</h3><h4 id="命令行添加"><a href="#命令行添加" class="headerlink" title="命令行添加:"></a>命令行添加:</h4><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">docker run -it -v /宿主机绝对路径目录:/容器内目录 镜像名</span><br><span class="line"></span><br><span class="line">限制容器内对这个数据卷也就是文件夹只读不可写:</span><br><span class="line"><span class="code">	docker run -it -v /宿主机绝对路径目录:/容器内目录:ro 镜像名</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920144546.png" alt="image-20200920144546046"></p>
+<h4 id="DokcerFile添加"><a href="#DokcerFile添加" class="headerlink" title="DokcerFile添加:"></a>DokcerFile添加:</h4><h5 id="步骤"><a href="#步骤" class="headerlink" title="步骤:"></a>步骤:</h5><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165657.png" alt="image-20200920165657519"></p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line"><span class="bullet">1.</span> 新建一个文件夹,并且在文件夹下创建一个名为Dockerfile的文件</span><br><span class="line"><span class="bullet">2.</span> 然后将要添加的dockerfile文件的内容写入保存</span><br><span class="line"><span class="bullet">3.</span> 然后将这个dockerfile文件和原始centos镜像通过docker build命令重新组装一个新镜像.</span><br><span class="line"><span class="bullet">4.</span> 然后用这个新镜像创建一个容器,容器中自动创建了我们定义好的那两个数据卷.</span><br><span class="line"><span class="bullet">5.</span> 可以通过用docker inspect 容器id 来查看容器的详细描述,里面有数据卷对应的主机目录.</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165639.png" alt="image-20200920165639189"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920170735.png" alt="image-20200920170735194"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165247.png" alt="image-20200920165247757"></p>
+<h3 id="数据卷容器"><a href="#数据卷容器" class="headerlink" title="数据卷容器:"></a>数据卷容器:</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">如下图,也就是将dc01的数据卷与dc02共享,也就是在dc01中改变,dc02中也可以查看</span><br><span class="line"></span><br><span class="line">!!!注意:</span><br><span class="line"><span class="bullet">	1.</span> 假如dc01有两个共享,也就是dc02和dc03都继承与dc01,那么将dc01删除后,dc02和dc03还有共享吗?   </span><br><span class="line"><span class="code">		仍然共享,不受影响,只要共享一建立,就和其他任何其他容器没有任何关系</span></span><br><span class="line"><span class="code">		比如dc3继承dc2,dc2继承dc1,将dc2删除,那么dc1和dc3之间仍然能够共享,不会受到任何影响.</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920191751.png" alt="image-20200920191751352"></p>
+<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><h3 id="概念-1"><a href="#概念-1" class="headerlink" title="概念:"></a>概念:</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">dockerfile是用来构建docker镜像的构架文件,是由一系列的命令和参数构成的脚本.</span><br><span class="line"></span><br><span class="line">构建的三个步骤:</span><br><span class="line"> dockerfile -&gt; docker build  -&gt; run</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="构建过程"><a href="#构建过程" class="headerlink" title="构建过程:"></a>构建过程:</h3><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092342.png" alt="image-20200921091939285"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092339.png" alt="image-20200921092119062"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092335.png" alt="image-20200921092201404"></p>
+<h3 id="Docker体系结构-指令"><a href="#Docker体系结构-指令" class="headerlink" title="Docker体系结构(指令)"></a>Docker体系结构(指令)</h3><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093150.png" alt="image-20200921093150094"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093226.png" alt="image-20200921093226601"></p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">copy 后面的参数有两种写法 copy src dest</span><br><span class="line"><span class="code">					copy[&quot;src&quot;,&quot;dest&quot;]</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093046.png" alt="image-20200921093046252"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092919.png" alt="image-20200921092919705"></p>
+<h3 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h3><h4 id="案例1-vim和ifconfig支持"><a href="#案例1-vim和ifconfig支持" class="headerlink" title="案例1:  vim和ifconfig支持"></a>案例1:  vim和ifconfig支持</h4><p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094520.png" alt="image-20200921094520287"></p>
+<p><img src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094026.png" alt="image-20200921094026200"></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2021/03/24/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+  </entry>
+</search>
