@@ -1,0 +1,259 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta http-equiv=x-ua-compatible content="IE=edge, chrome=1"><title>Java并发基本理论 - Aboysky</title><meta name=Description content="Live & Life"><meta property="og:title" content="Java并发基本理论"><meta property="og:description" content="Java并发 线程 线程和进程的区别 创建线程的方式 其实新建线程的方式就只有一种，就是Thread类的Start0方法，但是这个方法是一个priv"><meta property="og:type" content="article"><meta property="og:url" content="https://aboysky.com/posts/java%E5%B9%B6%E5%8F%91/"><meta property="og:image" content="https://aboysky.com"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-06-18T00:00:00+00:00"><meta property="article:modified_time" content="2021-06-18T00:00:00+00:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://aboysky.com"><meta name=twitter:title content="Java并发基本理论"><meta name=twitter:description content="Java并发 线程 线程和进程的区别 创建线程的方式 其实新建线程的方式就只有一种，就是Thread类的Start0方法，但是这个方法是一个priv"><meta name=application-name content="Aboysky"><meta name=apple-mobile-web-app-title content="Aboysky"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel=icon href=https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/safari-pinned-tab.svg><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://aboysky.com/posts/java%E5%B9%B6%E5%8F%91/><link rel=prev href=https://aboysky.com/posts/docker/><link rel=next href=https://aboysky.com/posts/%E7%88%AC%E8%99%AB%E5%85%A5%E9%97%A8/><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css><link rel=stylesheet href=/css/style.min.42bc16b2773e1fd9464425ddfb9a60269c9c69289f0f5f9f78c5f6e7416bbcc0.css integrity="sha256-QrwWsnc+H9lGRCXd+5pgJpycaSifD1+feMX250FrvMA="><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Java并发基本理论","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/aboysky.com\/posts\/java%E5%B9%B6%E5%8F%91\/"},"image":["https:\/\/aboysky.com\/images\/Apple-Devices-Preview.png"],"genre":"posts","keywords":"并发, Java","wordcount":7164,"url":"https:\/\/aboysky.com\/posts\/java%E5%B9%B6%E5%8F%91\/","datePublished":"2021-06-18T00:00:00+00:00","dateModified":"2021-06-18T00:00:00+00:00","license":"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher":{"@type":"Organization","name":"xxxx","logo":"https:\/\/aboysky.com\/images\/avatar.png"},"author":{"@type":"Person","name":"Aboysky"},"description":""}</script></head><body header-desktop=fixed header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title=Aboysky><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png 2x" data-sizes=auto alt=https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png title=https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png>Aboysky</a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/><i class="fas fa-solid fa-books"></i> 所有文章 </a><a class=menu-item href=/tags/><i class="fas fa-solid fa-tags"></i> 标签 </a><a class=menu-item href=/categories/><i class="fas fa-fw fa-th"></i> 分类 </a><a class=menu-item href=/categories/documentation/><i class="fas fa-solid fa-book"></i> 文档 </a><a class=menu-item href=/about/><i class="fas fa-regular fa-user"></i> 关于 </a><a class=menu-item href=/friends/><i class="fas fa-fw fa-fan fa-spin"></i> 友链 </a><a class=menu-item href=https://github.com/Aboysky title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i> </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item language" title=选择语言>简体中文<i class="fas fa-chevron-right fa-fw"></i>
+<select class=language-select id=language-select-desktop onchange="location=this.value"><option value=/posts/java%E5%B9%B6%E5%8F%91/ selected>简体中文</option></select>
+</a><span class="menu-item search" id=search-desktop><input type=text placeholder=搜索文章标题或内容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索><i class="fas fa-search fa-fw"></i></a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空><i class="fas fa-times-circle fa-fw"></i></a>
+<span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin"></i></span>
+</span><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题><i class="fas fa-adjust fa-fw"></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title=Aboysky><img class="lazyload logo" src=/svg/loading.min.svg data-src=https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png 2x" data-sizes=auto alt=https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png title=https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png>Aboysky</a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder=搜索文章标题或内容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索><i class="fas fa-search fa-fw"></i></a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空><i class="fas fa-times-circle fa-fw"></i></a>
+<span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin"></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>取消</a></div><a class=menu-item href=/posts/ title><i class="fas fa-solid fa-books"></i>所有文章</a><a class=menu-item href=/tags/ title><i class="fas fa-solid fa-tags"></i>标签</a><a class=menu-item href=/categories/ title><i class="fas fa-fw fa-th"></i>分类</a><a class=menu-item href=/categories/documentation/ title><i class="fas fa-solid fa-book"></i>文档</a><a class=menu-item href=/about/ title><i class="fas fa-regular fa-user"></i>关于</a><a class=menu-item href=/friends/ title><i class="fas fa-fw fa-fan fa-spin"></i>友链</a><a class=menu-item href=https://github.com/Aboysky title=GitHub rel="noopener noreffer" target=_blank><i class="fab fa-github fa-fw"></i></a><a href=javascript:void(0); class="menu-item theme-switch" title=切换主题>
+<i class="fas fa-adjust fa-fw"></i>
+</a><a href=javascript:void(0); class=menu-item title=选择语言>简体中文<i class="fas fa-chevron-right fa-fw"></i>
+<select class=language-select onchange="location=this.value"><option value=/posts/java%E5%B9%B6%E5%8F%91/ selected>简体中文</option></select></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目录</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animated flipInX">Java并发基本理论</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=https://aboysky.com title=Author target=_blank rel="noopener noreffer author" class=author><i class="fas fa-user-circle fa-fw"></i>Aboysky</a></span></div><div class=post-meta-line><i class="far fa-calendar fa-fw"></i>&nbsp;<time datetime=2021-06-18>2021-06-18</time>&nbsp;<i class="far fa-calendar-plus fa-fw"></i>&nbsp;<time datetime=2021-06-18>2021-06-18</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 7164 字&nbsp;
+<i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 15 分钟&nbsp;</div></div><div class="details toc" id=toc-static kept><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fas fa-angle-right"></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ol><li><a href=#线程>线程</a><ol><li><a href=#线程和进程的区别>线程和进程的区别</a></li><li><a href=#创建线程的方式>创建线程的方式</a></li><li><a href=#线程的状态转换>线程的状态转换</a></li><li><a href=#基本api>基本API</a></li><li><a href=#怎么去停止线程>怎么去停止线程？</a></li></ol></li><li><a href=#线程同步的基本方法>线程同步的基本方法</a><ol><li><a href=#cascompare-and-swap>CAS(Compare and swap)</a></li><li><a href=#volatile>volatile</a></li><li><a href=#syncronized>syncronized</a></li><li><a href=#lock>Lock</a></li></ol></li><li><a href=#java内存模型>Java内存模型</a><ol><li><a href=#概述>概述</a></li><li><a href=#原子性>原子性</a></li><li><a href=#有序性>有序性</a></li><li><a href=#可见性>可见性</a></li><li><a href=#happens-before原则>happens-before原则</a></li><li><a href=#final内存语义>final内存语义</a></li></ol></li><li><a href=#锁>锁</a><ol><li><a href=#lock接口>Lock接口</a></li><li><a href=#队列同步器abstractqueuesynchronizer>队列同步器AbstractQueueSynchronizer</a></li><li><a href=#reentrantlock>ReentrantLock</a></li><li><a href=#reentrantreadwritelock>ReentrantReadWriteLock</a></li><li><a href=#locksupport类>LockSupport类</a></li><li><a href=#condition接口>Condition接口</a></li><li><a href=#conditionobject>ConditionObject</a></li></ol></li><li><a href=#并发容器>并发容器</a><ol><li><a href=#concurrenthashmap>ConcurrentHashMap</a></li><li><a href=#copyonwritearraylist>CopyOnWriteArrayList</a></li><li><a href=#threadlocal>ThreadLocal</a></li><li><a href=#countdownlatch>CountDownLatch</a></li><li><a href=#cyclicbarrier>CyclicBarrier</a></li><li><a href=#exchanger>Exchanger</a></li></ol></li><li><a href=#线程池>线程池</a><ol><li><a href=#概念>概念</a></li><li><a href=#好处>好处</a></li><li><a href=#总体设计>总体设计</a></li><li><a href=#生命周期管理>生命周期管理</a></li><li><a href=#任务调度>任务调度</a></li><li><a href=#拒绝策略>拒绝策略</a></li></ol></li></ol></nav></div></div><div class=content id=content><h1 id=java并发>Java并发</h1><h2 id=线程>线程</h2><h3 id=线程和进程的区别>线程和进程的区别</h3><h3 id=创建线程的方式>创建线程的方式</h3><ul><li><p>其实新建线程的方式就只有一种，就是Thread类的Start0方法，但是这个方法是一个private native方法。并且这个方法也只在start方法中被调用到了。而start方法他的执行逻辑是先去判断这个线程有没有执行过start方法，有一个状态位，如果没有，就去调用start0方法。start0方法是一个本地方法，他在里面去回调run方法。 所以创建线程的方法只有这个start0方法。</p></li><li><p>继承Thread类重写run方法</p></li><li><p>实现Runnable接口</p></li><li><p>Callable</p><ul><li>Future接口定义一个规则，就是可以取值和取消任务，然后就是RunnableFuture，它实现了Runable和Future，最后就是FutureTask，它实现了RunnableFuture，一般Callable其实还是去通过Thread或者线程池的submit去提交一个任务</li></ul></li></ul><h3 id=线程的状态转换>线程的状态转换</h3><ul><li>NEW、RUNNABLE、WAIT、TIME_WAIT、BLOCKED、TERMINATED</li><li>wait、LockSupport.park()</li></ul><h3 id=基本api>基本API</h3><ul><li><p>yield</p></li><li><p>sleep</p><ul><li>TimeUnit.sleep</li></ul></li><li><p>join</p></li><li><p>start</p></li><li><p>run</p></li></ul><h3 id=怎么去停止线程>怎么去停止线程？</h3><ul><li><ol><li>不推荐的方式 stop 、suspend</li></ol></li><li><ol start=2><li>中断 interrupt</li></ol><ul><li><p>isInterrupt()方法</p><ul><li>重载，如果参数设置为true，则会清除中断标记，而interrupted方法则是调用了这个方法</li></ul></li><li><p>interrupted() 方法，会还原中断标记</p></li></ul></li><li><ol start=3><li>标志对象</li></ol><ul><li>volatile</li></ul></li></ul><h2 id=线程同步的基本方法>线程同步的基本方法</h2><h3 id=cascompare-and-swap>CAS(Compare and swap)</h3><ul><li><p>比较并交换，AQS和偏向锁，原子类，类的初始化等等都用的是这个</p></li><li><p>基于cmpxchg指令</p></li><li><p>缺点</p><ul><li>ABA问题，增加版本号</li><li>空自旋等待成功</li></ul></li></ul><h3 id=volatile>volatile</h3><ul><li><p>功能</p><ul><li>保证可见性</li><li>禁止重排序</li></ul></li><li><p>实现</p><ul><li><p>可见性的保证</p><ul><li><p>jvm层面 ，use前read，write后store</p></li><li><p>cpu层面</p><p>因为volatile关键字主要是去实现共享变量的可见性，在cpu执行中，cpu并不直接向内存交换数据，而是和缓存行，也就是cpu拿和修改数据都是在缓存行里面。这个时候就会有一个问题，不同cpu中的L1,L2缓存中可能不一样。而volatile关键字在底层主要就是在指令前加了lock前缀，而lock前缀最关键的作用就是会引起处理器缓存回写到内存。一个处理器的缓存回写到内存会导致其他处理器的缓存无效。处理器使用嗅探技术保证它的内部缓存、系统内存和其他处理器的
+缓存的数据在总线上保持一致。</p></li></ul></li><li><p>禁止重排序的实现</p><ul><li><p>内存屏障</p></li><li><p>happens-before</p><p>一个volatile对象的写，happens-before任何后续对这个volatile对象的读</p></li></ul></li></ul></li></ul><h3 id=syncronized>syncronized</h3><ul><li><p>功能</p><ul><li>原子性</li><li>可见性</li><li>可重入性</li></ul></li><li><p>实现</p><ul><li><p>普通同步方法</p></li><li><p>静态同步方法</p></li><li><p>同步代码块</p><ul><li>monitorenter</li><li>monitorexit</li></ul></li></ul></li><li><p>原理</p><ul><li>不管是monitorenter这些指令还是ACC_SYNCRONOUS标志，他们的目的都只是一个，判别这是一个同步方法，去要去控制线程同步。此时他们都会去找此对象关联的monitor对象，尝试去acquire这个监视器。如果拿到了就进去，如果没有拿到，则进入这个monitor负责的阻塞队列中。</li><li>前面的也不一定准备，因为jdk1.6的时候对这个做了优化，增加了偏向锁，轻量级锁。所以你进去的时候会先尝试偏向锁，然后再试后面的。锁升级</li></ul></li><li><p>锁升级</p><ul><li><p>无锁</p></li><li><p>偏向锁</p><ul><li>大部分时候都是一个线程在访问。。。只需要比较线程id是否一致，。。</li><li>先看偏向锁指向的线程id是否存活，不存活的话直接cas改掉线程id，获得锁，存活则看它是否需要继续争抢锁，如果争抢，升级为轻量级锁，或者判断epoch的大小是否超过40，如果超过，也升级为轻量级锁。</li></ul></li><li><p>轻量级锁</p><ul><li>轻量级锁的主要思想就是大部分的锁立马就可以拿到，如果直接去阻塞然后唤醒，因为需要转换内核和用户态，那效率就很低，所以他就自旋等待，一般是10次，如果没有拿到，升级为重量锁，或者自旋等待时又有一个线程来抢，则立马升级为重量锁。jdk后续将自旋锁改为了自适应自旋锁，也就是等待时间可以参考前面是否有线程自旋等待成功。如果有，就等久一点</li></ul></li><li><p>重量级锁</p></li></ul></li></ul><h3 id=lock>Lock</h3><ul><li>ReentrantLock</li><li>ReentrantRedaWriteLock</li></ul><h2 id=java内存模型>Java内存模型</h2><h3 id=概述>概述</h3><p>Java它想建立一个抽象的高级的内存模型，以去抵消掉不同的底层所带来的影响。方便程序员的编写。他不是一个具体的实现，他更多的是一种规范，去声明和指定以及保证多个线程正确的同步执行。
+它对于多线程，每一个线程都有一个自己的本地内存，这个本地存储是每个线程独享的，然后他们有一个共享内存，一般就是堆。而本地内存和主内存之间的数据交换就是由JMM控制。</p><h3 id=原子性>原子性</h3><h3 id=有序性>有序性</h3><ul><li><p>双重检查锁定</p><ul><li><p>由于对象new时分配空间，初始化，将地址空间传递给对象，二三步的执行顺序并不一定就是这样，所以可能导致访问到未被正确初始化的对象。</p></li><li><p>解决办法</p><ul><li>volatile</li><li>借助于类初始化的锁机制，用静态内部类初始化一个</li></ul></li></ul></li></ul><h3 id=可见性>可见性</h3><h3 id=happens-before原则>happens-before原则</h3><p>程序顺序原则，即在一个线程内必须保证语义串行性，也就是说按照代码顺序执行。
+锁规则 解锁(unlock)操作必然发生在后续的同一个锁的加锁(lock)之前，也就是说，如果对于一个锁解锁后，再加锁，那么加锁的动作必须在解锁动作之后(同一个锁)。
+volatile规则 volatile变量的写，先发生于读，这保证了volatile变量的可见性，简单的理解就是，volatile变量在每次被线程访问时，都强迫从主内存中读该变量的值，而当该变量发生变化时，又会强迫将最新的值刷新到主内存，任何时刻，不同的线程总是能够看到该变量的最新值。
+线程启动规则 线程的start()方法先于它的每一个动作，即如果线程A在执行线程B的start方法之前修改了共享变量的值，那么当线程B执行start方法时，线程A对共享变量的修改对线程B可见
+传递性 A先于B ，B先于C 那么A必然先于C
+线程终止规则 线程的所有操作先于线程的终结，Thread.join()方法的作用是等待当前执行的线程终止。假设在线程B终止之前，修改了共享变量，线程A从线程B的join方法成功返回后，线程B对共享变量的修改将对线程A可见。
+线程中断规则 对线程 interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生，可以通过Thread.interrupted()方法检测线程是否中断。
+对象终结规则 对象的构造函数执行，结束先于finalize()方法</p><h3 id=final内存语义>final内存语义</h3><ul><li>禁止把final域的写重排序到构造函数之外，可以保证在对象引用为任意线程可见之前,对象的final域已经被正确初始化过了</li><li>初次读对象引用与初次读该对象包含的final
+域,</li></ul><h2 id=锁>锁</h2><h3 id=lock接口>Lock接口</h3><p>/*</p><ul><li>ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.</li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul><p>/*
+*
+*
+*
+*
+*</p><ul><li>Written by Doug Lea with assistance from members of JCP JSR-166</li><li>Expert Group and released to the public domain, as explained at</li><li><a href=http://creativecommons.org/publicdomain/zero/1.0/ target=_blank rel="noopener noreffer">http://creativecommons.org/publicdomain/zero/1.0/</a>
+*/</li></ul><p>package java.util.concurrent.locks;</p><p>import java.util.concurrent.TimeUnit;</p><p>/**</p><ul><li><p>{@code Lock} implementations provide more extensive locking</p></li><li><p>operations than can be obtained using {@code synchronized} methods</p></li><li><p>and statements. They allow more flexible structuring, may have</p></li><li><p>quite different properties, and may support multiple associated</p></li><li><p>{@link Condition} objects.</p></li><li></li><li><p>A lock is a tool for controlling access to a shared resource by</li><li><p>multiple threads. Commonly, a lock provides exclusive access to a</p></li><li><p>shared resource: only one thread at a time can acquire the lock and</p></li><li><p>all access to the shared resource requires that the lock be</p></li><li><p>acquired first. However, some locks may allow concurrent access to</p></li><li><p>a shared resource, such as the read lock of a {@link ReadWriteLock}.</p></li><li></li><li><p>The use of {@code synchronized} methods or statements provides</li><li><p>access to the implicit monitor lock associated with every object, but</p></li><li><p>forces all lock acquisition and release to occur in a block-structured way:</p></li><li><p>when multiple locks are acquired they must be released in the opposite</p></li><li><p>order, and all locks must be released in the same lexical scope in which</p></li><li><p>they were acquired.</p></li><li></li><li><p>While the scoping mechanism for {@code synchronized} methods</li><li><p>and statements makes it much easier to program with monitor locks,</p></li><li><p>and helps avoid many common programming errors involving locks,</p></li><li><p>there are occasions where you need to work with locks in a more</p></li><li><p>flexible way. For example, some algorithms for traversing</p></li><li><p>concurrently accessed data structures require the use of</p></li><li><p>"hand-over-hand" or "chain locking": you</p></li><li><p>acquire the lock of node A, then node B, then release A and acquire</p></li><li><p>C, then release B and acquire D and so on. Implementations of the</p></li><li><p>{@code Lock} interface enable the use of such techniques by</p></li><li><p>allowing a lock to be acquired and released in different scopes,</p></li><li><p>and allowing multiple locks to be acquired and released in any</p></li><li><p>order.</p></li><li></li><li><p>With this increased flexibility comes additional</li><li><p>responsibility. The absence of block-structured locking removes the</p></li><li><p>automatic release of locks that occurs with {@code synchronized}</p></li><li><p>methods and statements. In most cases, the following idiom</p></li><li><p>should be used:</p></li><li></li><li><pre> {@code
+</li>
+<li>
+<p>Lock l = &hellip;;</p>
+</li>
+<li>
+<p>l.lock();</p>
+</li>
+<li>
+<p>try {</p>
+</li>
+<li>
+<p>// access the resource protected by this lock</p>
+</li>
+<li>
+<p>} finally {</p>
+</li>
+<li>
+<p>l.unlock();</p>
+</li>
+<li>
+<p>}}</pre></p></li><li></li><li><p>When locking and unlocking occur in different scopes, care must be</p></li><li><p>taken to ensure that all code that is executed while the lock is</p></li><li><p>held is protected by try-finally or try-catch to ensure that the</p></li><li><p>lock is released when necessary.</p></li><li></li><li><p>{@code Lock} implementations provide additional functionality</li><li><p>over the use of {@code synchronized} methods and statements by</p></li><li><p>providing a non-blocking attempt to acquire a lock ({@link</p></li><li><p>#tryLock()}), an attempt to acquire the lock that can be</p></li><li><p>interrupted ({@link #lockInterruptibly}, and an attempt to acquire</p></li><li><p>the lock that can timeout ({@link #tryLock(long, TimeUnit)}).</p></li><li></li><li><p>A {@code Lock} class can also provide behavior and semantics</li><li><p>that is quite different from that of the implicit monitor lock,</p></li><li><p>such as guaranteed ordering, non-reentrant usage, or deadlock</p></li><li><p>detection. If an implementation provides such specialized semantics</p></li><li><p>then the implementation must document those semantics.</p></li><li></li><li><p>Note that {@code Lock} instances are just normal objects and can</li><li><p>themselves be used as the target in a {@code synchronized} statement.</p></li><li><p>Acquiring the</p></li><li><p>monitor lock of a {@code Lock} instance has no specified relationship</p></li><li><p>with invoking any of the {@link #lock} methods of that instance.</p></li><li><p>It is recommended that to avoid confusion you never use {@code Lock}</p></li><li><p>instances in this way, except within their own implementation.</p></li><li></li><li><p>Except where noted, passing a {@code null} value for any</li><li><p>parameter will result in a {@link NullPointerException} being</p></li><li><p>thrown.</p></li><li></li><li><h3>Memory Synchronization</h3></li><li></li><li><p>All {@code Lock} implementations <em>must</em> enforce the same</li><li><p>memory synchronization semantics as provided by the built-in monitor</p></li><li><p>lock, as described in</p></li><li><a href=https://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.4></li><li><p>Chapter 17 of</p></li><li><p><cite>The Java™ Language Specification</cite></a>:</p></li><li><ul></li><li><li>A successful {@code lock} operation has the same memory</li><li><p>synchronization effects as a successful <em>Lock</em> action.</p></li><li><li>A successful {@code unlock} operation has the same</li><li><p>memory synchronization effects as a successful <em>Unlock</em> action.</p></li><li></ul></li><li></li><li><p>Unsuccessful locking and unlocking operations, and reentrant</p></li><li><p>locking/unlocking operations, do not require any memory</p></li><li><p>synchronization effects.</p></li><li></li><li><h3>Implementation Considerations</h3></li><li></li><li><p>The three forms of lock acquisition (interruptible,</li><li><p>non-interruptible, and timed) may differ in their performance</p></li><li><p>characteristics, ordering guarantees, or other implementation</p></li><li><p>qualities. Further, the ability to interrupt the <em>ongoing</em></p></li><li><p>acquisition of a lock may not be available in a given {@code Lock}</p></li><li><p>class. Consequently, an implementation is not required to define</p></li><li><p>exactly the same guarantees or semantics for all three forms of</p></li><li><p>lock acquisition, nor is it required to support interruption of an</p></li><li><p>ongoing lock acquisition. An implementation is required to clearly</p></li><li><p>document the semantics and guarantees provided by each of the</p></li><li><p>locking methods. It must also obey the interruption semantics as</p></li><li><p>defined in this interface, to the extent that interruption of lock</p></li><li><p>acquisition is supported: which is either totally, or only on</p></li><li><p>method entry.</p></li><li></li><li><p>As interruption generally implies cancellation, and checks for</li><li><p>interruption are often infrequent, an implementation can favor responding</p></li><li><p>to an interrupt over normal method return. This is true even if it can be</p></li><li><p>shown that the interrupt occurred after another action may have unblocked</p></li><li><p>the thread. An implementation should document this behavior.</p></li><li></li><li><p>@see ReentrantLock</p></li><li><p>@see Condition</p></li><li><p>@see ReadWriteLock</p></li><li></li><li><p>@since 1.5</p></li><li><p>@author Doug Lea
+*/
+public interface Lock {</p><p>/**</p><ul><li>Acquires the lock.</li><li></li><li><p>If the lock is not available then the current thread becomes</li><li>disabled for thread scheduling purposes and lies dormant until the</li><li>lock has been acquired.</li><li></li><li><p><b>Implementation Considerations</b></li><li></li><li><p>A {@code Lock} implementation may be able to detect erroneous use</li><li>of the lock, such as an invocation that would cause deadlock, and</li><li>may throw an (unchecked) exception in such circumstances. The</li><li>circumstances and the exception type must be documented by that</li><li>{@code Lock} implementation.
+*/
+void lock();</li></ul><p>/**</p><ul><li>Acquires the lock unless the current thread is</li><li>{@linkplain Thread#interrupt interrupted}.</li><li></li><li><p>Acquires the lock if it is available and returns immediately.</li><li></li><li><p>If the lock is not available then the current thread becomes</li><li>disabled for thread scheduling purposes and lies dormant until</li><li>one of two things happens:</li><li></li><li><ul></li><li><li>The lock is acquired by the current thread; or</li><li><li>Some other thread {@linkplain Thread#interrupt interrupts} the</li><li>current thread, and interruption of lock acquisition is supported.</li><li></ul></li><li></li><li><p>If the current thread:</li><li><ul></li><li><li>has its interrupted status set on entry to this method; or</li><li><li>is {@linkplain Thread#interrupt interrupted} while acquiring the</li><li>lock, and interruption of lock acquisition is supported,</li><li></ul></li><li>then {@link InterruptedException} is thrown and the current thread&rsquo;s</li><li>interrupted status is cleared.</li><li></li><li><p><b>Implementation Considerations</b></li><li></li><li><p>The ability to interrupt a lock acquisition in some</li><li>implementations may not be possible, and if possible may be an</li><li>expensive operation. The programmer should be aware that this</li><li>may be the case. An implementation should document when this is</li><li>the case.</li><li></li><li><p>An implementation can favor responding to an interrupt over</li><li>normal method return.</li><li></li><li><p>A {@code Lock} implementation may be able to detect</li><li>erroneous use of the lock, such as an invocation that would</li><li>cause deadlock, and may throw an (unchecked) exception in such</li><li>circumstances. The circumstances and the exception type must</li><li>be documented by that {@code Lock} implementation.</li><li></li><li>@throws InterruptedException if the current thread is</li><li><pre><code>    interrupted while acquiring the lock (and interruption
+</code></pre></li><li><pre><code>    of lock acquisition is supported)
+</code></pre></li></ul><p>*/
+void lockInterruptibly() throws InterruptedException;</p><p>/**</p><ul><li>Acquires the lock only if it is free at the time of invocation.</li><li></li><li><p>Acquires the lock if it is available and returns immediately</li><li>with the value {@code true}.</li><li>If the lock is not available then this method will return</li><li>immediately with the value {@code false}.</li><li></li><li><p>A typical usage idiom for this method would be:</li><li><pre> {@code
+</li>
+<li>Lock lock = &hellip;;</li>
+<li>if (lock.tryLock()) {</li>
+<li>try {</li>
+<li>
+<pre><code>// manipulate protected state
+</code></pre></li><li>} finally {</li><li><pre><code>lock.unlock();
+</code></pre></li><li>}</li><li>} else {</li><li>// perform alternative actions</li><li>}}</pre></li><li></li><li>This usage ensures that the lock is unlocked if it was acquired, and</li><li>doesn&rsquo;t try to unlock if the lock was not acquired.</li><li></li><li>@return {@code true} if the lock was acquired and</li><li><pre><code>    {@code false} otherwise
+</code></pre></li></ul><p>*/
+boolean tryLock();</p><p>/**</p><ul><li>Acquires the lock if it is free within the given waiting time and the</li><li>current thread has not been {@linkplain Thread#interrupt interrupted}.</li><li></li><li><p>If the lock is available this method returns immediately</li><li>with the value {@code true}.</li><li>If the lock is not available then</li><li>the current thread becomes disabled for thread scheduling</li><li>purposes and lies dormant until one of three things happens:</li><li><ul></li><li><li>The lock is acquired by the current thread; or</li><li><li>Some other thread {@linkplain Thread#interrupt interrupts} the</li><li>current thread, and interruption of lock acquisition is supported; or</li><li><li>The specified waiting time elapses</li><li></ul></li><li></li><li><p>If the lock is acquired then the value {@code true} is returned.</li><li></li><li><p>If the current thread:</li><li><ul></li><li><li>has its interrupted status set on entry to this method; or</li><li><li>is {@linkplain Thread#interrupt interrupted} while acquiring</li><li>the lock, and interruption of lock acquisition is supported,</li><li></ul></li><li>then {@link InterruptedException} is thrown and the current thread&rsquo;s</li><li>interrupted status is cleared.</li><li></li><li><p>If the specified waiting time elapses then the value {@code false}</li><li>is returned.</li><li>If the time is</li><li>less than or equal to zero, the method will not wait at all.</li><li></li><li><p><b>Implementation Considerations</b></li><li></li><li><p>The ability to interrupt a lock acquisition in some implementations</li><li>may not be possible, and if possible may</li><li>be an expensive operation.</li><li>The programmer should be aware that this may be the case. An</li><li>implementation should document when this is the case.</li><li></li><li><p>An implementation can favor responding to an interrupt over normal</li><li>method return, or reporting a timeout.</li><li></li><li><p>A {@code Lock} implementation may be able to detect</li><li>erroneous use of the lock, such as an invocation that would cause</li><li>deadlock, and may throw an (unchecked) exception in such circumstances.</li><li>The circumstances and the exception type must be documented by that</li><li>{@code Lock} implementation.</li><li></li><li>@param time the maximum time to wait for the lock</li><li>@param unit the time unit of the {@code time} argument</li><li>@return {@code true} if the lock was acquired and {@code false}</li><li><pre><code>    if the waiting time elapsed before the lock was acquired
+</code></pre></li><li></li><li>@throws InterruptedException if the current thread is interrupted</li><li><pre><code>    while acquiring the lock (and interruption of lock
+</code></pre></li><li><pre><code>    acquisition is supported)
+</code></pre></li></ul><p>*/
+boolean tryLock(long time, TimeUnit unit) throws InterruptedException;</p><p>/**</p><ul><li>Releases the lock.</li><li></li><li><p><b>Implementation Considerations</b></li><li></li><li><p>A {@code Lock} implementation will usually impose</li><li>restrictions on which thread can release a lock (typically only the</li><li>holder of the lock can release it) and may throw</li><li>an (unchecked) exception if the restriction is violated.</li><li>Any restrictions and the exception</li><li>type must be documented by that {@code Lock} implementation.
+*/
+void unlock();</li></ul><p>/**</p><ul><li>Returns a new {@link Condition} instance that is bound to this</li><li>{@code Lock} instance.</li><li></li><li><p>Before waiting on the condition the lock must be held by the</li><li>current thread.</li><li>A call to {@link Condition#await()} will atomically release the lock</li><li>before waiting and re-acquire the lock before the wait returns.</li><li></li><li><p><b>Implementation Considerations</b></li><li></li><li><p>The exact operation of the {@link Condition} instance depends on</li><li>the {@code Lock} implementation and must be documented by that</li><li>implementation.</li><li></li><li>@return A new {@link Condition} instance for this {@code Lock} instance</li><li>@throws UnsupportedOperationException if this {@code Lock}</li><li><pre><code>    implementation does not support conditions
+</code></pre></li></ul><p>*/
+Condition newCondition();
+}</p></li></ul><ul><li><p>显示的获取锁和释放锁</p></li><li><p>可中断的获取锁</p></li><li><p>可超时的获取锁</p></li><li><p>基本API</p><ul><li></li></ul></li></ul><h3 id=队列同步器abstractqueuesynchronizer>队列同步器AbstractQueueSynchronizer</h3><ul><li><p>获取状态的方法</p><ul><li>getState</li><li>SetState</li><li>CompareAndSet</li></ul></li><li><p>需要重写的方法</p><ul><li></li></ul></li><li><p>提供的模板方法</p><ul><li></li></ul></li><li><p>同步队列</p><ul><li>Node</li><li>FIFO的双向队列，只有他的前驱节点为头节点才有资格去尝试获取锁，如果获取到之后，将自己设置为头节点，然后将原头节点的next指针设置为空。</li></ul></li><li><p>独占式获取锁</p><p>public final void acquire(int arg) {
+if (!tryAcquire(arg) &&
+acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+selfInterrupt();
+}
+将节点添加进同步队列
+private Node addWaiter(Node mode) {
+Node node = new Node(mode);</p><pre><code>for (;;) {
+    Node oldTail = tail;
+    if (oldTail != null) {
+        node.setPrevRelaxed(oldTail);
+        if (compareAndSetTail(oldTail, node)) {
+            oldTail.next = node;
+            return node;
+        }
+    } else {
+        initializeSyncQueue();
+    }
+}
+</code></pre><p>}
+在队列中的节点不断的获取锁
+final boolean acquireQueued(final Node node, int arg) {
+boolean interrupted = false;
+try {
+for (;;) {
+// 获取前驱节点
+final Node p = node.predecessor();
+if (p == head && tryAcquire(arg)) {
+setHead(node);
+p.next = null; // help GC
+return interrupted;
+}
+if (shouldParkAfterFailedAcquire(p, node))
+interrupted |= parkAndCheckInterrupt();
+}
+} catch (Throwable t) {
+cancelAcquire(node);
+if (interrupted)
+selfInterrupt();
+throw t;
+}
+}</p></li><li><p>独占式释放锁</p><p>public final boolean release(int arg) {
+if (tryRelease(arg)) {
+Node h = head;
+if (h != null && h.waitStatus != 0)
+unparkSuccessor(h);
+return true;
+}
+return false;
+}</p><p>private void unparkSuccessor(Node node) {
+/*
+* If status is negative (i.e., possibly needing signal) try
+* to clear in anticipation of signalling. It is OK if this
+* fails or if status is changed by waiting thread.
+*/
+int ws = node.waitStatus;
+if (ws &lt; 0)
+node.compareAndSetWaitStatus(ws, 0);</p><pre><code>/*
+ * Thread to unpark is held in successor, which is normally
+ * just the next node.  But if cancelled or apparently null,
+ * traverse backwards from tail to find the actual
+ * non-cancelled successor.
+ */
+Node s = node.next;
+if (s == null || s.waitStatus &gt; 0) {
+    s = null;
+    //倒序遍历，找到最先的一个waitStatus小于等于0的node
+    for (Node p = tail; p != node &amp;&amp; p != null; p = p.prev)
+        if (p.waitStatus &lt;= 0)
+            s = p;
+}
+if (s != null)
+    LockSupport.unpark(s.thread);
+</code></pre><p>}
+为什么需要倒序遍历寻找？
+因为addWaiter时的操作并不是原子操作，可能出现前置指针好了，但是后指针没有指成功。并且canceled也是将后指针指向了自己，所以倒序遍历寻找最好</p></li></ul><h3 id=reentrantlock>ReentrantLock</h3><ul><li><p>可重入锁</p></li><li><p>公平和非公平锁</p><p>ReentrantLock 分为公平锁和非公平锁，可以通过构造方法来指定具体类型：</p><p>public ReentrantLock() {
+sync = new NonfairSync();
+}</p><p>public ReentrantLock(boolean fair) {
+sync = fair ? new FairSync() : new NonfairSync();
+}
+默认一般使用非公平锁，它的效率和吞吐量都比公平锁高的多(后面会分析具体原因)。</p></li></ul><h3 id=reentrantreadwritelock>ReentrantReadWriteLock</h3><ul><li></li><li><p>同步状态</p><ul><li>前16位标识读，后16位标识写</li></ul></li><li><p>锁降级</p></li></ul><h3 id=locksupport类>LockSupport类</h3><ul><li></li></ul><h3 id=condition接口>Condition接口</h3><ul><li>类似于Object对象的wait/notify方法</li><li></li><li></li></ul><h3 id=conditionobject>ConditionObject</h3><ul><li><p>是aqs下的一个内部类</p></li><li><p>等待队列</p><ul><li>FIFO的队列</li><li></li></ul></li><li><p>同步队列入等待队列</p><ul><li></li></ul></li><li><p>从等待队列移入同步队列</p><ul><li></li></ul></li></ul><h2 id=并发容器>并发容器</h2><h3 id=concurrenthashmap>ConcurrentHashMap</h3><ul><li><p>jdk1.7</p><ul><li>segment数组加上entry数组，segment实现的时ReentrantLock，来实现分段锁</li></ul></li><li><p>jdk1.8</p><ul><li><p>Node</p><p>static class Node&lt;K,V> implements Map.Entry&lt;K,V> {
+final int hash;
+final K key;
+volatile V val;
+volatile Node&lt;K,V> next;</p></li><li><p>put</p><p>public V put(K key, V value) {
+return putVal(key, value, false);
+}</p><p>final V putVal(K key, V value, boolean onlyIfAbsent) {
+// key value都不能为空
+if (key == null || value == null) throw new NullPointerException();
+int hash = spread(key.hashCode());
+int binCount = 0;
+for (Node&lt;K,V>[] tab = table;;) {
+Node&lt;K,V> f; int n, i, fh; K fk; V fv;
+if (tab == null || (n = tab.length) == 0)
+// 第一次插入的时候初始化
+tab = initTable();
+// 如果这个node没有值的话，直接插入进去
+else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
+if (casTabAt(tab, i, null, new Node&lt;K,V>(hash, key, value)))
+break; // no lock when adding to empty bin
+}
+// hash位moved说明它正在扩容，然后去帮助扩容
+else if ((fh = f.hash) == MOVED)
+tab = helpTransfer(tab, f);
+else if (onlyIfAbsent // check first node without acquiring lock
+&& fh == hash
+&& ((fk = f.key) == key || (fk != null && key.equals(fk)))
+&& (fv = f.val) != null)
+return fv;
+else {
+V oldVal = null;
+synchronized (f) {
+if (tabAt(tab, i) == f) {
+if (fh >= 0) {
+binCount = 1;
+for (Node&lt;K,V> e = f;; ++binCount) {
+K ek;
+if (e.hash == hash &&
+((ek = e.key) == key ||
+(ek != null && key.equals(ek)))) {
+oldVal = e.val;
+if (!onlyIfAbsent)
+e.val = value;
+break;
+}
+Node&lt;K,V> pred = e;
+if ((e = e.next) == null) {
+pred.next = new Node&lt;K,V>(hash, key, value);
+break;
+}
+}
+}
+else if (f instanceof TreeBin) {
+Node&lt;K,V> p;
+binCount = 2;
+if ((p = ((TreeBin&lt;K,V>)f).putTreeVal(hash, key,
+value)) != null) {
+oldVal = p.val;
+if (!onlyIfAbsent)
+p.val = value;
+}
+}
+else if (f instanceof ReservationNode)
+throw new IllegalStateException(&ldquo;Recursive update&rdquo;);
+}
+}
+if (binCount != 0) {
+if (binCount >= TREEIFY_THRESHOLD)
+treeifyBin(tab, i);
+if (oldVal != null)
+return oldVal;
+break;
+}
+}
+}
+addCount(1L, binCount);
+return null;
+}</p><p>//初始化数组</p><p>private final Node&lt;K,V>[] initTable() {
+Node&lt;K,V>[] tab; int sc;
+while ((tab = table) == null || tab.length == 0) {
+// 说明有数组正在初始化
+if ((sc = sizeCtl) &lt; 0)
+Thread.yield(); // lost initialization race; just spin
+else if (U.compareAndSetInt(this, SIZECTL, sc, -1)) {
+try {
+if ((tab = table) == null || tab.length == 0) {
+int n = (sc > 0) ? sc : DEFAULT_CAPACITY;
+@SuppressWarnings(&ldquo;unchecked&rdquo;)
+Node&lt;K,V>[] nt = (Node&lt;K,V>[])new Node[n];
+table = tab = nt;
+sc = n - (n &#187;> 2);
+}
+} finally {
+sizeCtl = sc;
+}
+break;
+}
+}
+return tab;
+}</p></li></ul></li><li><p>get</p><ul><li>扩容</li></ul><p>扩容有两个时机进行扩容，一个是某个node的长度大于等于8的时候，他就会调用treeIfyBin方法去尝试是否可以树化，这个方法首先会判断node数组的长度，如果小于64，则考虑先将数组扩容。tryPreSize方法进行扩容。这个方法里面则会调用transfer方法来进行扩容，transfer方法负责迁移node节点，他有一个transferIndex指针，最开始时这个指针指向数组最右端，通过这个指针和每次每个线程需要迁移的node数，迁移的node数最少为16，然后将index指针cas修改掉，并且将已经迁移好的node节点变为forwardingNode，如果这个时候有线程访问，如果这个线程是去put或者remove方法，那么他会调用helptransfer方法来帮助扩容。如果进去方法后发现index指针为0或者扩容线程已经到最大的线程数，则直接返回。如果时get则会去调用forwardingIndex中的find方法访问新的node数组中对应的值。</p><ul><li>cas加上syncronized</li></ul></li></ul><h3 id=copyonwritearraylist>CopyOnWriteArrayList</h3><ul><li>所有对数组有修改的操作都在新数组在进行，也就是用空间换时间。</li><li>它重写了一个COWIterator内部类，内部迭代的可能只是一个快照而已。</li></ul><h3 id=threadlocal>ThreadLocal</h3><ul><li>每一个Thread里面都有一个threadlocals对象，这个对象的类型是ThreadLocal.ThreadLocalMap类型的对象，ThreadLocalMap内部是一个Entry数组，而Entry是ThreadLocalMap的一个静态内部类，它继承了WeakReference&lt;ThreadLocal>类型，Entry增加了一个内部属性value。因为线程和ThreadLocal之间的引用是弱引用，所以当线程使用完成后gc时就会自动回收这个对象，避免内存泄漏。</li><li>get</li><li>set</li><li>remove</li></ul><h3 id=countdownlatch>CountDownLatch</h3><ul><li>倒数计数器，构造方法传入一个整型值，主线程通过await方法阻塞，直到活动线程多次调用countdown方法将state的状态减为0时主线程结束休眠。底层使用的是aqs的共享锁。当state不为0时，表示都可以获取共享锁。await可以多个线程调用，然后都被阻塞到同步队列中。countdown一个线程也可以调用多次</li></ul><h3 id=cyclicbarrier>CyclicBarrier</h3><ul><li>可以循环使用的障碍，创建此对象时可以传入一个整形值和一个Runable对象，代表在这个障碍前需要多少个线程到达，也就是需要被调用多少次await方法的线程等待在这个障碍前。内部使用的是非公平的ReentrantLock</li></ul><h3 id=exchanger>Exchanger</h3><ul><li>用于两个线程间交互信息，当线程调用exchange方法后阻塞，直到另一个线程调用exchange方法</li></ul><h2 id=线程池>线程池</h2><h3 id=概念>概念</h3><ul><li>是一种基于池化思想管理线程的工具</li></ul><h3 id=好处>好处</h3><ul><li>降低资源消耗：通过池化技术重复利用已创建的线程，降低线程创建和销毁造成的损耗。</li><li>提高响应速度：任务到达时，无需等待线程创建即可立即执行。</li><li>提高线程的可管理性：线程是稀缺资源，如果无限制创建，不仅会消耗系统资源，还会因为线程的不合理分布导致资源调度失衡，降低系统的稳定性。使用线程池可以进行统一的分配、调优和监控。</li><li>提供更多更强大的功能：线程池具备可拓展性，允许开发人员向其中增加更多的功能。比如延时定时线程池ScheduledThreadPoolExecutor，就允许任务延期执行或定期执行。</li></ul><h3 id=总体设计>总体设计</h3><ul><li></li><li></li></ul><h3 id=生命周期管理>生命周期管理</h3><ul><li><p>ctl属性</p><ul><li>workercounter</li><li>runstate</li><li></li></ul></li><li><p>线程池状态转换</p><ul><li></li><li></li></ul></li></ul><h3 id=任务调度>任务调度</h3><h3 id=拒绝策略>拒绝策略</h3><div class="details admonition warning open"><div class="details-summary admonition-title"><i class="icon fas fa-exclamation-triangle fa-fwwarning"></i>警告<i class="details-icon fas fa-angle-right fa-fw"></i></div><div class=details-content><div class=admonition-content>本文最后更新于 <span class=timeago datetime=2021-06-18T00:00:00 title="June 18, 2021">June 18, 2021</span>，文中内容可能已过时，请谨慎使用。</div></div></div></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新于 2021-06-18</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=/posts/java%E5%B9%B6%E5%8F%91/index.md target=_blank>阅读原始文档</a></span></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=https://aboysky.com/posts/java%E5%B9%B6%E5%8F%91/ data-title=Java并发基本理论 data-hashtags=并发,Java><i class="fab fa-twitter fa-fw"></i></a><a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=https://aboysky.com/posts/java%E5%B9%B6%E5%8F%91/ data-hashtag=并发><i class="fab fa-facebook-square fa-fw"></i></a><a href=javascript:void(0); title="分享到 Hacker News" data-sharer=hackernews data-url=https://aboysky.com/posts/java%E5%B9%B6%E5%8F%91/ data-title=Java并发基本理论><i class="fab fa-hacker-news fa-fw"></i></a><a href=javascript:void(0); title="分享到 Line" data-sharer=line data-url=https://aboysky.com/posts/java%E5%B9%B6%E5%8F%91/ data-title=Java并发基本理论><i data-svg-src=https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg></i></a><a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=https://aboysky.com/posts/java%E5%B9%B6%E5%8F%91/ data-title=Java并发基本理论><i class="fab fa-weibo fa-fw"></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw"></i>&nbsp;<a href=/tags/%E5%B9%B6%E5%8F%91/>并发</a>,&nbsp;<a href=/tags/java/>Java</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/docker/ class=prev rel=prev title=Docker><i class="fas fa-angle-left fa-fw"></i>Docker</a>
+<a href=/posts/%E7%88%AC%E8%99%AB%E5%85%A5%E9%97%A8/ class=next rel=next title=聚焦爬虫>聚焦爬虫<i class="fas fa-angle-right fa-fw"></i></a></div></div><div id=comments><div id=utterances></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://utteranc.es/>Utterances</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line><span id=run-time></span></div><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.97.3">Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a></div><div class=footer-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2019 - 2022</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://aboysky.com target=_blank>Aboysky</a></span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到顶部><i class="fas fa-arrow-up fa-fw"></i>
+</a><a href=# id=view-comments class=fixed-button title=查看评论><i class="fas fa-comment fa-fw"></i></a></div><script type=text/javascript src=https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/autocomplete.js@0.37.1/dist/autocomplete.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/algoliasearch@4.2.0/dist/algoliasearch-lite.umd.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"复制到剪贴板",maxShownLines:10},comment:{utterances:{darkTheme:"github-dark",issueTerm:"pathname",label:"",lightTheme:"github-light",repo:"Aboysky/hugoblogtalks"}},search:{algoliaAppID:"Y97LTXVWRS",algoliaIndex:"aboysky",algoliaSearchKey:"f9889e0fbd11912e552fab1d6555e511",highlightTag:"em",maxResultLength:10,noResultsFound:"没有找到结果",snippetLength:50,type:"algolia"}}</script><script type=text/javascript src=/js/theme.min.f51938f3065a40ee841bcb558e4330e31fd26c0ea55343fff8770b88b0319a3c.js integrity="sha256-9Rk48wZaQO6EG8tVjkMw4x/SbA6lU0P/+HcLiLAxmjw="></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js></script><script type=text/javascript src=/js/custom.js></script><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?17908664",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></body></html>
