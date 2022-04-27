@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Docker - Aboysky</title><meta name="Description" content="Live &amp; Life"><meta property="og:title" content="Docker" />
+<meta property="og:description" content="1.理念 一次构建,随处运行 解决运行环境和配置问题软件容器,方便做持续集成并有助于整体发布的容器虚拟化技术 和虚拟机的区别 2.docker组成 架" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://aboysky.com/posts/docker/" /><meta property="og:image" content="https://aboysky.com"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-05-31T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-04-27T10:13:46+08:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://aboysky.com"/>
+
+<meta name="twitter:title" content="Docker"/>
+<meta name="twitter:description" content="1.理念 一次构建,随处运行 解决运行环境和配置问题软件容器,方便做持续集成并有助于整体发布的容器虚拟化技术 和虚拟机的区别 2.docker组成 架"/>
+<meta name="application-name" content="Aboysky">
+<meta name="apple-mobile-web-app-title" content="Aboysky"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/safari-pinned-tab.svg"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://aboysky.com/posts/docker/" /><link rel="prev" href="https://aboysky.com/posts/hello-world/" /><link rel="next" href="https://aboysky.com/posts/java%E5%B9%B6%E5%8F%91/" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css"><link rel="stylesheet" href="/css/style.min.42bc16b2773e1fd9464425ddfb9a60269c9c69289f0f5f9f78c5f6e7416bbcc0.css" integrity="sha256-QrwWsnc&#43;H9lGRCXd&#43;5pgJpycaSifD1&#43;feMX250FrvMA="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Docker",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/aboysky.com\/posts\/docker\/"
+        },"image": ["https:\/\/aboysky.com\/images\/Apple-Devices-Preview.png"],"genre": "posts","wordcount":  2722 ,
+        "url": "https:\/\/aboysky.com\/posts\/docker\/","datePublished": "2021-05-31T00:00:00+00:00","dateModified": "2022-04-27T10:13:46+08:00","license": "This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher": {
+            "@type": "Organization",
+            "name": "xxxx","logo": "https:\/\/aboysky.com\/images\/avatar.png"},"author": {
+                "@type": "Person",
+                "name": "Aboysky"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Aboysky"><img
+        class="lazyload logo"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png"
+        title="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png" />Aboysky</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"><i class='fas fa-solid fa-books'></i> 所有文章 </a><a class="menu-item" href="/tags/"><i class='fas fa-solid fa-tags'></i> 标签 </a><a class="menu-item" href="/categories/"><i class='fas fa-fw fa-th'></i> 分类 </a><a class="menu-item" href="/categories/documentation/"><i class='fas fa-solid fa-book'></i> 文档 </a><a class="menu-item" href="/about/"><i class='fas fa-regular fa-user'></i> 关于 </a><a class="menu-item" href="/friends/"><i class='fas fa-fw fa-fan fa-spin'></i> 友链 </a><a class="menu-item" href="https://github.com/Aboysky" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i>  </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item language" title="选择语言">简体中文<i class="fas fa-chevron-right fa-fw"></i>
+                        <select class="language-select" id="language-select-desktop" onchange="location = this.value;"><option value="/posts/docker/" selected>简体中文</option></select>
+                    </a><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Aboysky"><img
+        class="lazyload logo"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png"
+        title="https://forpinco.oss-cn-chengdu.aliyuncs.com/aboyskyS/logo.png" />Aboysky</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/posts/" title=""><i class='fas fa-solid fa-books'></i>所有文章</a><a class="menu-item" href="/tags/" title=""><i class='fas fa-solid fa-tags'></i>标签</a><a class="menu-item" href="/categories/" title=""><i class='fas fa-fw fa-th'></i>分类</a><a class="menu-item" href="/categories/documentation/" title=""><i class='fas fa-solid fa-book'></i>文档</a><a class="menu-item" href="/about/" title=""><i class='fas fa-regular fa-user'></i>关于</a><a class="menu-item" href="/friends/" title=""><i class='fas fa-fw fa-fan fa-spin'></i>友链</a><a class="menu-item" href="https://github.com/Aboysky" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a><a href="javascript:void(0);" class="menu-item" title="选择语言">简体中文<i class="fas fa-chevron-right fa-fw"></i>
+                    <select class="language-select" onchange="location = this.value;"><option value="/posts/docker/" selected>简体中文</option></select>
+                </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+    <h2 class="toc-title">目录</h2>
+    <div class="toc-content" id="toc-content-auto"></div>
+</div><article class="page single"><h1 class="single-title animated flipInX">Docker</h1><div class="post-meta">
+        <div class="post-meta-line"><span class="post-author"><a href="https://aboysky.com" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>Aboysky</a></span></div>
+        <div class="post-meta-line"><i class="far fa-calendar fa-fw"></i>&nbsp;<time datetime="2021-05-31">2021-05-31</time>&nbsp;<i class="far fa-calendar-plus fa-fw"></i>&nbsp;<time datetime="2022-04-27">2022-04-27</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2722 字&nbsp;
+            <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 6 分钟&nbsp;</div>
+    </div><div class="details toc" id="toc-static" kept="">
+        <div class="details-summary toc-title">
+            <span>目录</span>
+            <span><i class="details-icon fas fa-angle-right"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ol>
+    <li><a href="#1理念">1.理念</a></li>
+    <li><a href="#2docker组成">2.docker组成</a></li>
+    <li><a href="#3底层原理">3.底层原理</a></li>
+    <li><a href="#4docker常用命令">4.Docker常用命令</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#重要细节">重要细节:</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#5docker镜像">5.Docker镜像</a></li>
+    <li><a href="#docker容器数据卷">Docker容器数据卷</a>
+      <ol>
+        <li><a href="#概念">概念:</a></li>
+        <li><a href="#作用">作用:</a></li>
+        <li><a href="#创建容器数据卷">创建容器数据卷:</a>
+          <ol>
+            <li><a href="#命令行添加">命令行添加:</a></li>
+            <li><a href="#dokcerfile添加">DokcerFile添加:</a>
+              <ol>
+                <li><a href="#步骤">步骤:</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li><a href="#数据卷容器">数据卷容器:</a></li>
+      </ol>
+    </li>
+    <li><a href="#dockerfile">Dockerfile</a>
+      <ol>
+        <li><a href="#概念-1">概念:</a></li>
+        <li><a href="#构建过程">构建过程:</a></li>
+        <li><a href="#docker体系结构指令">Docker体系结构(指令)</a></li>
+        <li><a href="#案例">案例</a>
+          <ol>
+            <li><a href="#案例1--vim和ifconfig支持">案例1:  vim和ifconfig支持</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav></div>
+    </div><div class="content" id="content"><h2 id="1理念">1.理念</h2>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912185811.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912185811.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912185811.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912185811.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912185811.png"
+        title="image-20200912185810914" /></p>
+<ul>
+<li>
+<p>一次构建,随处运行</p>
+</li>
+<li>
+<p>解决运行环境和配置问题软件容器,方便做持续集成并有助于整体发布的容器虚拟化技术</p>
+</li>
+<li>
+<p>和虚拟机的区别</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912195455.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912195455.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912195455.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912195455.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912195455.png"
+        title="image-20200912195455148" /></p>
+</li>
+</ul>
+<h2 id="2docker组成">2.docker组成</h2>
+<ul>
+<li>
+<p>架构图:</p>
+</li>
+<li>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912200443779.png"
+        data-srcset="C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912200443779.png, C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912200443779.png 1.5x, C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912200443779.png 2x"
+        data-sizes="auto"
+        alt="C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912200443779.png"
+        title="image-20200912200443779" /></p>
+</li>
+<li>
+<p>基本组成:</p>
+<ul>
+<li>
+<p>镜像:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">   类似于Java的类,可以创建多个对象(也就是docker的容器)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   镜像是分层的
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">	Docker利用容器(Container)独立运行的一个或一组应用.容器时用镜像创建的运行实例.
+</span></span><span class="line"><span class="cl">	容器可以被启动,开始,停止,删除.每个容器都是相互隔离的,保证安全的平台.
+</span></span><span class="line"><span class="cl">	可以把容器看作以简易版的Linux环境(包括root用户权限,进程空间,用户空间,和网络空间等)和运行在其中的应用程序,容器的定义     和镜像几乎一模一样,也是一堆层的统一视角.唯一区别在于容器的最上面那一层是可读可写的.
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>仓库</p>
+</li>
+</ul>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912205724.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912205724.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912205724.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912205724.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912205724.png"
+        title="image-20200912205724008" /></p>
+</li>
+</ul>
+<h2 id="3底层原理">3.底层原理</h2>
+<ul>
+<li>run执行过程</li>
+</ul>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225141.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225141.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225141.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225141.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225141.png"
+        title="image-20200912225141330" /></p>
+<ul>
+<li>
+<p>为什么Docker比VM快?</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912225428414.png"
+        data-srcset="C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912225428414.png, C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912225428414.png 1.5x, C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912225428414.png 2x"
+        data-sizes="auto"
+        alt="C:%5CUsers%5Chuanl%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200912225428414.png"
+        title="image-20200912225428414" /></p>
+</li>
+</ul>
+<h2 id="4docker常用命令">4.Docker常用命令</h2>
+<ul>
+<li>
+<p>文档</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">Usage:	docker [OPTIONS] COMMAND
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">A self-sufficient runtime for containers
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Options:
+</span></span><span class="line"><span class="cl">      --config string      Location of client config files (default &#34;/root/.docker&#34;)
+</span></span><span class="line"><span class="cl">  -c, --context string     Name of the context to use to connect to the daemon
+</span></span><span class="line"><span class="cl">                           (overrides DOCKER_HOST env var and default context set with
+</span></span><span class="line"><span class="cl">                           &#34;docker context use&#34;)
+</span></span><span class="line"><span class="cl">  -D, --debug              Enable debug mode
+</span></span><span class="line"><span class="cl">  -H, --host list          Daemon socket(s) to connect to
+</span></span><span class="line"><span class="cl">  -l, --log-level string   Set the logging level
+</span></span><span class="line"><span class="cl">                           (&#34;debug&#34;|&#34;info&#34;|&#34;warn&#34;|&#34;error&#34;|&#34;fatal&#34;) (default &#34;info&#34;)
+</span></span><span class="line"><span class="cl">      --tls                Use TLS; implied by --tlsverify
+</span></span><span class="line"><span class="cl">      --tlscacert string   Trust certs signed only by this CA (default
+</span></span><span class="line"><span class="cl">                           &#34;/root/.docker/ca.pem&#34;)
+</span></span><span class="line"><span class="cl">      --tlscert string     Path to TLS certificate file (default &#34;/root/.docker/cert.pem&#34;)
+</span></span><span class="line"><span class="cl">      --tlskey string      Path to TLS key file (default &#34;/root/.docker/key.pem&#34;)
+</span></span><span class="line"><span class="cl">      --tlsverify          Use TLS and verify the remote
+</span></span><span class="line"><span class="cl">  -v, --version            Print version information and quit
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Management Commands:
+</span></span><span class="line"><span class="cl">  builder     Manage builds
+</span></span><span class="line"><span class="cl">  config      Manage Docker configs
+</span></span><span class="line"><span class="cl">  container   Manage containers
+</span></span><span class="line"><span class="cl">  context     Manage contexts
+</span></span><span class="line"><span class="cl">  engine      Manage the docker engine
+</span></span><span class="line"><span class="cl">  image       Manage images
+</span></span><span class="line"><span class="cl">  network     Manage networks
+</span></span><span class="line"><span class="cl">  node        Manage Swarm nodes
+</span></span><span class="line"><span class="cl">  plugin      Manage plugins
+</span></span><span class="line"><span class="cl">  secret      Manage Docker secrets
+</span></span><span class="line"><span class="cl">  service     Manage services
+</span></span><span class="line"><span class="cl">  stack       Manage Docker stacks
+</span></span><span class="line"><span class="cl">  swarm       Manage Swarm
+</span></span><span class="line"><span class="cl">  system      Manage Docker
+</span></span><span class="line"><span class="cl">  trust       Manage trust on Docker images
+</span></span><span class="line"><span class="cl">  volume      Manage volumes
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Commands:
+</span></span><span class="line"><span class="cl">  attach      Attach local standard input, output, and error streams to a running container
+</span></span><span class="line"><span class="cl">  build       Build an image from a Dockerfile
+</span></span><span class="line"><span class="cl">  commit      Create a new image from a container&#39;s changes
+</span></span><span class="line"><span class="cl">  cp          Copy files/folders between a container and the local filesystem
+</span></span><span class="line"><span class="cl">  create      Create a new container
+</span></span><span class="line"><span class="cl">  diff        Inspect changes to files or directories on a container&#39;s filesystem
+</span></span><span class="line"><span class="cl">  events      Get real time events from the server
+</span></span><span class="line"><span class="cl">  exec        Run a command in a running container
+</span></span><span class="line"><span class="cl">  export      Export a container&#39;s filesystem as a tar archive
+</span></span><span class="line"><span class="cl">  history     Show the history of an image
+</span></span><span class="line"><span class="cl">  images      List images
+</span></span><span class="line"><span class="cl">  import      Import the contents from a tarball to create a filesystem image
+</span></span><span class="line"><span class="cl">  info        Display system-wide information
+</span></span><span class="line"><span class="cl">  inspect     Return low-level information on Docker objects
+</span></span><span class="line"><span class="cl">  kill        Kill one or more running containers
+</span></span><span class="line"><span class="cl">  load        Load an image from a tar archive or STDIN
+</span></span><span class="line"><span class="cl">  login       Log in to a Docker registry
+</span></span><span class="line"><span class="cl">  logout      Log out from a Docker registry
+</span></span><span class="line"><span class="cl">  logs        Fetch the logs of a container
+</span></span><span class="line"><span class="cl">  pause       Pause all processes within one or more containers
+</span></span><span class="line"><span class="cl">  port        List port mappings or a specific mapping for the container
+</span></span><span class="line"><span class="cl">  ps          List containers
+</span></span><span class="line"><span class="cl">  pull        Pull an image or a repository from a registry
+</span></span><span class="line"><span class="cl">  push        Push an image or a repository to a registry
+</span></span><span class="line"><span class="cl">  rename      Rename a container
+</span></span><span class="line"><span class="cl">  restart     Restart one or more containers
+</span></span><span class="line"><span class="cl">  rm          Remove one or more containers
+</span></span><span class="line"><span class="cl">  rmi         Remove one or more images
+</span></span><span class="line"><span class="cl">  run         Run a command in a new container
+</span></span><span class="line"><span class="cl">  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+</span></span><span class="line"><span class="cl">  search      Search the Docker Hub for images
+</span></span><span class="line"><span class="cl">  start       Start one or more stopped containers
+</span></span><span class="line"><span class="cl">  stats       Display a live stream of container(s) resource usage statistics
+</span></span><span class="line"><span class="cl">  stop        Stop one or more running containers
+</span></span><span class="line"><span class="cl">  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+</span></span><span class="line"><span class="cl">  top         Display the running processes of a container
+</span></span><span class="line"><span class="cl">  unpause     Unpause all processes within one or more containers
+</span></span><span class="line"><span class="cl">  update      Update configuration of one or more containers
+</span></span><span class="line"><span class="cl">  version     Show the Docker version information
+</span></span><span class="line"><span class="cl">  wait        Block until one or more containers stop, then print their exit codes
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>帮助命令:</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225816.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225816.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225816.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225816.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225816.png"
+        title="image-20200912225816054" /></p>
+</li>
+<li>
+<p>镜像命令:</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225842.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225842.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225842.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225842.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912225842.png"
+        title="image-20200912225842275" /></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">    docker images 列出本机镜像文件
+</span></span><span class="line"><span class="cl">    常用参数说明:
+</span></span><span class="line"><span class="cl">        -a:列出本地所有的镜像(含中间映像层)
+</span></span><span class="line"><span class="cl">        -q:只显示镜像ID
+</span></span><span class="line"><span class="cl">        --digests: 显示镜像的摘要信息
+</span></span><span class="line"><span class="cl">        --no-trunc:显示完整的镜像信息
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912230622.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912230622.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912230622.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912230622.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912230622.png"
+        title="image-20200912230621978" /></p>
+<ul>
+<li>docker search`</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">    docker search 镜像名字
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    去hub.docker上面查有哪些镜像
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    参数说明: 
+</span></span><span class="line"><span class="cl">        --no-trunc:显示完整的镜像描述
+</span></span><span class="line"><span class="cl">        -s:列出收藏数不小于指定值的镜像
+</span></span><span class="line"><span class="cl">        --automated:只列出automated build类型的镜像
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912231246.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912231246.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912231246.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912231246.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200912231246.png"
+        title="image-20200912231246913" /></p>
+<ul>
+<li>docker pull 镜像名</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">    docker [options] pull 镜像名 [:tags]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    如果不加后面的tag,那么默认是latest最新版本. 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>docker rmi 某个xxx镜像名字ID [tag]</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">    删除镜像
+</span></span><span class="line"><span class="cl">        不加后面的tag默认删除latest
+</span></span><span class="line"><span class="cl">    删除单个 docker rmi 镜像名
+</span></span><span class="line"><span class="cl">    删除多个 docker rmi -f(强制) 镜像名1:tag 镜像名2:tag
+</span></span><span class="line"><span class="cl">    删除全部 docker rmi -f $(docker images -qa)
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>容器命令</p>
+<ul>
+<li>
+<p>docker run [Options] image [command]</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">创建并启动容器
+</span></span><span class="line"><span class="cl">常用选项:
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913131045.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913131045.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913131045.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913131045.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913131045.png"
+        title="image-20200913131038245" /></p>
+</li>
+<li>
+<p>docker ps [OPTIONS] 列出当前所有正在运行的容器</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913132839.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913132839.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913132839.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913132839.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913132839.png"
+        title="image-20200913132839771" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>退出容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">exit  容器停止后退出,也就是下次使用得重启
+</span></span><span class="line"><span class="cl">ctrl+P+Q 容器不停止退出,下次可以继续使用,只是暂时退出
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>开启容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">docker start 容器名/id
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>重启容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">docker restart 容器名/id
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>停止容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">docker stop 容器名/id  正常关机
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>强制停止</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">docker kill 容器名/id  类似于直接拔电源
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>删除已停止的容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">docker rm  容器ID
+</span></span><span class="line"><span class="cl">	强制删除 docker rm -f 容器ID
+</span></span><span class="line"><span class="cl">	一次性删除多个容器 docker rm -f $(docker ps -a -q)
+</span></span><span class="line"><span class="cl">					docker ps -a -q | xargs docker rm重要
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<h4 id="重要细节">重要细节:</h4>
+<ul>
+<li>
+<p>启动守护式容器 docker run -d  镜像名</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">docker run -it centos  交互式启动
+</span></span><span class="line"><span class="cl">docker run -d centos 	守护式启动
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913194303.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913194303.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913194303.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913194303.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913194303.png"
+        title="image-20200913194303547" /></p>
+</li>
+<li>
+<p>查看容器日志</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">docker logs -f -t --t下`ail 容器ID
+</span></span><span class="line"><span class="cl">	-t 列出日志时间
+</span></span><span class="line"><span class="cl">	-f 实时打印日志
+</span></span><span class="line"><span class="cl">	--tail num 显示最后num行
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>查看容器内运行的进程; docker top 容器ID</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">因为docker容器可以看成一个简易版的linux
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>查看容器内部细节 docker inspect 容器ID</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>进入正在运行的容器并以命令行交互:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">docker exec  -it 容器ID bashShell 
+</span></span><span class="line"><span class="cl">重新进入 docker attach 容器ID
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">区别: attach 直接进入容器启动命令的终端
+</span></span><span class="line"><span class="cl">	  exec 在容器中打开新的终端,并且可以启动新的进程.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	exec 可以在桌面执行某容器的内部命令并且将结果返回至桌面.可以在外层直接执行内部的命令然后放回结果到外层.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920163104.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920163104.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920163104.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920163104.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920163104.png"
+        title="image-20200920162859832" /></p>
+</li>
+<li>
+<p>从容器类拷贝文件到主机上 docker cp 容器ID:/路径 目的路径</p>
+</li>
+<li>
+<p>常用命令:</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225541.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225541.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225541.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225541.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225541.png"
+        title="image-20200913225541571" /></p>
+</li>
+</ul>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225614.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225614.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225614.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225614.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225614.png"
+        title="image-20200913225614050" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225637.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225637.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225637.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225637.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225637.png"
+        title="image-20200913225637235" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225816.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225816.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225816.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225816.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225816.png"
+        title="image-20200913225816758" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225835.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225835.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225835.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225835.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225835.png"
+        title="image-20200913225835412" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225912.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225912.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225912.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225912.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913225912.png"
+        title="image-20200913225911982" /></p>
+<h2 id="5docker镜像">5.Docker镜像</h2>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230338.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230338.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230338.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230338.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230338.png"
+        title="image-20200913230338412" /></p>
+<ul>
+<li>
+<p>概念:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">镜像是一种轻量级,可执行的独立软件包,用来打包软件运行环境和基于运行环境开发的软件,它包含运行某个软件所需的所有内容,包括代码,运行时,库,环境变量和配置文件.
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>UnionFS联合文件系统</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230622.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230622.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230622.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230622.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230622.png"
+        title="image-20200913230622073" /></p>
+</li>
+<li>
+<p>docker镜像加载原理</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230751.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230751.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230751.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230751.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913230751.png"
+        title="image-20200913230751572" /></p>
+</li>
+</ul>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913231809.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913231809.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913231809.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913231809.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913231809.png"
+        title="image-20200913231809604" /></p>
+<ul>
+<li>
+<p>镜像分层的概念(以tomcat为什么这么大为路径)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">因为联合文件系统UnionFS,tomcat需要包含它所有他所需的底层环境,一层一层这样叠加起来,就会变得很大
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232017.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232017.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232017.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232017.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232017.png"
+        title="image-20200913232017843" /></p>
+</li>
+<li>
+<p>为什么docker要采用多层镜像?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">最大的好处 -共享资源
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232312.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232312.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232312.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232312.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232312.png"
+        title="image-20200913232312124" /></p>
+</li>
+<li>
+<p>特点:</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232403.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232403.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232403.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232403.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232403.png"
+        title="image-20200913232403285" /></p>
+</li>
+<li>
+<p>补充:</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232633.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232633.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232633.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232633.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232633.png"
+        title="image-20200913232633377" /></p>
+</li>
+</ul>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232725.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232725.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232725.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232725.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913232725.png"
+        title="image-20200913232725769" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233042.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233042.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233042.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233042.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233042.png"
+        title="image-20200913233042478" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233138.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233138.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233138.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233138.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233138.png"
+        title="image-20200913233138604" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233419.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233419.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233419.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233419.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200913233419.png"
+        title="image-20200913233419650" /></p>
+<h2 id="docker容器数据卷">Docker容器数据卷</h2>
+<h3 id="概念">概念:</h3>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134004.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134004.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134004.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134004.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134004.png"
+        title="image-20200920133957409" /></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">其实也就是相当于在容器和系统之间建立一个可以同步共享的文件夹,
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="作用">作用:</h3>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134044.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134044.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134044.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134044.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920134044.png"
+        title="image-20200920134044123" /></p>
+<h3 id="创建容器数据卷">创建容器数据卷:</h3>
+<h4 id="命令行添加">命令行添加:</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">docker run -it -v /宿主机绝对路径目录:/容器内目录 镜像名
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">限制容器内对这个数据卷也就是文件夹只读不可写:
+</span></span><span class="line"><span class="cl">	docker run -it -v /宿主机绝对路径目录:/容器内目录:ro 镜像名
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920144546.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920144546.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920144546.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920144546.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920144546.png"
+        title="image-20200920144546046" /></p>
+<h4 id="dokcerfile添加">DokcerFile添加:</h4>
+<h5 id="步骤">步骤:</h5>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165657.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165657.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165657.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165657.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165657.png"
+        title="image-20200920165657519" /></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl"><span class="k">1.</span> 新建一个文件夹,并且在文件夹下创建一个名为Dockerfile的文件
+</span></span><span class="line"><span class="cl"><span class="k">2.</span> 然后将要添加的dockerfile文件的内容写入保存
+</span></span><span class="line"><span class="cl"><span class="k">3.</span> 然后将这个dockerfile文件和原始centos镜像通过docker build命令重新组装一个新镜像.
+</span></span><span class="line"><span class="cl"><span class="k">4.</span> 然后用这个新镜像创建一个容器,容器中自动创建了我们定义好的那两个数据卷.
+</span></span><span class="line"><span class="cl"><span class="k">5.</span> 可以通过用docker inspect 容器id 来查看容器的详细描述,里面有数据卷对应的主机目录.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165639.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165639.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165639.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165639.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165639.png"
+        title="image-20200920165639189" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920170735.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920170735.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920170735.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920170735.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920170735.png"
+        title="image-20200920170735194" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165247.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165247.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165247.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165247.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920165247.png"
+        title="image-20200920165247757" /></p>
+<h3 id="数据卷容器">数据卷容器:</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">如下图,也就是将dc01的数据卷与dc02共享,也就是在dc01中改变,dc02中也可以查看
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">!!!注意:
+</span></span><span class="line"><span class="cl">	<span class="k">1.</span> 假如dc01有两个共享,也就是dc02和dc03都继承与dc01,那么将dc01删除后,dc02和dc03还有共享吗?   
+</span></span><span class="line"><span class="cl">		仍然共享,不受影响,只要共享一建立,就和其他任何其他容器没有任何关系
+</span></span><span class="line"><span class="cl">		比如dc3继承dc2,dc2继承dc1,将dc2删除,那么dc1和dc3之间仍然能够共享,不会受到任何影响.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920191751.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920191751.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920191751.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920191751.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200920191751.png"
+        title="image-20200920191751352" /></p>
+<h2 id="dockerfile">Dockerfile</h2>
+<h3 id="概念-1">概念:</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">dockerfile是用来构建docker镜像的构架文件,是由一系列的命令和参数构成的脚本.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">构建的三个步骤:
+</span></span><span class="line"><span class="cl"> dockerfile -&gt; docker build  -&gt; run
+</span></span><span class="line"><span class="cl"> 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"></code></pre></td></tr></table>
+</div>
+</div><h3 id="构建过程">构建过程:</h3>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092342.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092342.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092342.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092342.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092342.png"
+        title="image-20200921091939285" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092339.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092339.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092339.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092339.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092339.png"
+        title="image-20200921092119062" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092335.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092335.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092335.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092335.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092335.png"
+        title="image-20200921092201404" /></p>
+<h3 id="docker体系结构指令">Docker体系结构(指令)</h3>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093150.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093150.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093150.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093150.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093150.png"
+        title="image-20200921093150094" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093226.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093226.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093226.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093226.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093226.png"
+        title="image-20200921093226601" /></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-markdown" data-lang="markdown"><span class="line"><span class="cl">copy 后面的参数有两种写法 copy src dest
+</span></span><span class="line"><span class="cl">					copy[&#34;src&#34;,&#34;dest&#34;]
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093046.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093046.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093046.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093046.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921093046.png"
+        title="image-20200921093046252" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092919.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092919.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092919.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092919.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921092919.png"
+        title="image-20200921092919705" /></p>
+<h3 id="案例">案例</h3>
+<h4 id="案例1--vim和ifconfig支持">案例1:  vim和ifconfig支持</h4>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094520.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094520.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094520.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094520.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094520.png"
+        title="image-20200921094520287" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094026.png"
+        data-srcset="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094026.png, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094026.png 1.5x, https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094026.png 2x"
+        data-sizes="auto"
+        alt="https://forpinco.oss-cn-chengdu.aliyuncs.com/20200921094026.png"
+        title="image-20200921094026200" /></p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2022-04-27&nbsp;<a class="git-hash" href="https://github.com/Aboysky/hugo-blog_source.git/commit/fa8219611ad1f7be97390256822b169084d06980" target="_blank" title="commit by Huan(huan.l@outlook.com) fa8219611ad1f7be97390256822b169084d06980: no message">
+                                    <i class="fas fa-hashtag fa-fw"></i>fa82196</a></span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span>
+                            <a class="link-to-markdown" href="/posts/docker/index.md" target="_blank">阅读原始文档</a>
+                        </span></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="https://aboysky.com/posts/docker/" data-title="Docker"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="https://aboysky.com/posts/docker/"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="分享到 Hacker News" data-sharer="hackernews" data-url="https://aboysky.com/posts/docker/" data-title="Docker"><i class="fab fa-hacker-news fa-fw"></i></a><a href="javascript:void(0);" title="分享到 Line" data-sharer="line" data-url="https://aboysky.com/posts/docker/" data-title="Docker"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@2.14.0/icons/line.svg"></i></a><a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="https://aboysky.com/posts/docker/" data-title="Docker"><i class="fab fa-weibo fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/hello-world/" class="prev" rel="prev" title="Hello World"><i class="fas fa-angle-left fa-fw"></i>Hello World</a>
+            <a href="/posts/java%E5%B9%B6%E5%8F%91/" class="next" rel="next" title="Java并发基本理论">Java并发基本理论<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+<div id="comments"><div id="utterances"></div><noscript>
+                Please enable JavaScript to view the comments powered by <a href="https://utteranc.es/">Utterances</a>.
+            </noscript></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-line">
+                <span id="run-time"></span>
+            </div><div class="footer-line">由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.97.3">Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://aboysky.com" target="_blank">Aboysky</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/smooth-scroll@16.1.3/dist/smooth-scroll.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/autocomplete.js@0.37.1/dist/autocomplete.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/algoliasearch@4.2.0/dist/algoliasearch-lite.umd.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.2.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.4.0/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":10},"comment":{"utterances":{"darkTheme":"github-dark","issueTerm":"pathname","label":"","lightTheme":"github-light","repo":"Aboysky/hugoblogtalks"}},"search":{"algoliaAppID":"Y97LTXVWRS","algoliaIndex":"aboysky","algoliaSearchKey":"f9889e0fbd11912e552fab1d6555e511","highlightTag":"em","maxResultLength":10,"noResultsFound":"没有找到结果","snippetLength":50,"type":"algolia"}};</script><script type="text/javascript" src="/js/theme.min.09729ab43fbb7b49c065c597d41bb70983c7852ea77794a00b8f78099b049b43.js" integrity="sha256-CXKatD&#43;7e0nAZcWX1Bu3CYPHhS6nd5SgC494CZsEm0M="></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script><script type="text/javascript" src="/js/custom.js"></script></body>
+</html>
