@@ -1,1 +1,18 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>https://aboysky.com/zh-cn/sitemap.xml</loc><lastmod>2022-04-27T10:13:46+08:00</lastmod></sitemap><sitemap><loc>https://aboysky.com/en/sitemap.xml</loc><lastmod>2022-04-27T10:13:46+08:00</lastmod></sitemap></sitemapindex>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://aboysky.com/</loc>
+    <lastmod>2023-10-07T22:05:35+08:00</lastmod>
+  </url><url>
+    <loc>https://aboysky.com/posts/hello_world/</loc>
+    <lastmod>2023-10-07T22:05:35+08:00</lastmod>
+  </url><url>
+    <loc>https://aboysky.com/posts/</loc>
+    <lastmod>2023-10-07T22:05:35+08:00</lastmod>
+  </url><url>
+    <loc>https://aboysky.com/categories/</loc>
+  </url><url>
+    <loc>https://aboysky.com/tags/</loc>
+  </url>
+</urlset>
