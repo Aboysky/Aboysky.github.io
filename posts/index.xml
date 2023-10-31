@@ -6,15 +6,14 @@
     <description>Recent content in Posts on Aboysky</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 07 Oct 2023 22:05:35 +0800</lastBuildDate><atom:link href="https://aboysky.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 07 Oct 2023 22:05:35 +0800</lastBuildDate>
+    <atom:link href="https://aboysky.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Hello_world</title>
       <link>https://aboysky.com/posts/hello_world/</link>
       <pubDate>Sat, 07 Oct 2023 22:05:35 +0800</pubDate>
-      
       <guid>https://aboysky.com/posts/hello_world/</guid>
       <description>你好 测试部署hugo</description>
     </item>
-    
   </channel>
 </rss>
